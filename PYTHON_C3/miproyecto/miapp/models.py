@@ -54,6 +54,8 @@ class CategoriaRecurso(models.Model):
         return self.nombre
 
 # Recursos multimedia
+# En models.py, en la clase Recurso, verificar que tengas estos campos:
+
 class Recurso(models.Model):
     TIPO_RECURSO_CHOICES = [
         ('video', 'Video'),
@@ -61,26 +63,35 @@ class Recurso(models.Model):
         ('texto_imagen', 'Texto con Imágenes'),
         ('ejercicio', 'Ejercicio Práctico'),
     ]
-    
+
     titulo = models.CharField(max_length=200)
-    descripcion = models.TextField()
+    descripcion = models.TextField()  # CAMBIADO A descripcion
     tipo_recurso = models.CharField(max_length=15, choices=TIPO_RECURSO_CHOICES)
     categoria = models.ForeignKey(CategoriaRecurso, on_delete=models.CASCADE)
-
-
-    enlace = models.URLField(blank=True, null=True) 
-    imagen_portada = models.ImageField(upload_to='portadas/', blank=True, null=True)  # Imagen de portada
-
-
-    url = models.URLField(blank=True, null=True)
+    enlace = models.URLField(blank=True, null=True)
+    imagen_portada = models.ImageField(upload_to='portadas/', blank=True, null=True)
     archivo = models.FileField(upload_to='recursos/', blank=True, null=True)
     contenido = models.TextField(blank=True)
     es_publico = models.BooleanField(default=True)
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
     creado_en = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
         return self.titulo
+
+    # Método para determinar si tiene archivo
+    def tiene_archivo(self):
+        return bool(self.archivo)
+    
+    # Método para determinar si tiene enlace
+    def tiene_enlace(self):
+        return bool(self.enlace)
+    
+    # Método para obtener tipo de archivo
+    def tipo_archivo(self):
+        if self.archivo:
+            return self.archivo.name.split('.')[-1].lower()
+        return None
 
 # Tests psicológicos
 class TestPsicologico(models.Model):
