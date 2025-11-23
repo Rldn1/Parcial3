@@ -273,4 +273,4 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(cargar_preguntas_test_completo, borrar_preguntas_test),
-    ]
+    ] 
