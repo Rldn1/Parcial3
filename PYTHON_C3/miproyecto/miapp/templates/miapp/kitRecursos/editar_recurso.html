@@ -1,0 +1,402 @@
+{% extends 'miapp/base.html' %}
+
+{% block title %}Editar Recurso - SoulComfort{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <!-- Header Compacto -->
+            <div class="page-header mb-4">
+                <div class="d-flex align-items-center mb-3">
+                    <a href="{% url 'miapp:admin_gestionar_herramientas' %}" class="btn btn-outline-secondary btn-sm me-3">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <div>
+                        <h1 class="h3 fw-bold text-warning mb-1">
+                            <i class="fas fa-edit me-2"></i>Editar Recurso
+                        </h1>
+                        <p class="text-muted mb-0">Actualiza la información del recurso "{{ recurso.titulo }}"</p>
+                    </div>
+                </div>
+                <!-- Información actual del recurso -->
+                <div class="current-resource-info bg-light rounded p-3">
+                    <div class="row">
+                       
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Descargas:</small>
+                            <strong class="text-dark">{{ recurso.descargas }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario Mejorado -->
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gradient-warning text-white py-3">
+                    <h5 class="card-title mb-0 fw-bold">
+                        <i class="fas fa-sliders-h me-2"></i>Configuración del Recurso
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" id="editarRecursoForm">
+                        {% csrf_token %}
+                        
+                        <!-- Información Básica -->
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-4">
+                                    <label for="titulo" class="form-label fw-semibold">
+                                        <i class="fas fa-heading me-2 text-warning"></i>Título del Recurso
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="titulo" name="titulo" 
+                                           value="{{ recurso.titulo }}" placeholder="Ej: Guía de Meditación para Principiantes" required>
+                                    <div class="form-text">Un título claro y descriptivo para el recurso</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-4">
+                                    <label for="orden" class="form-label fw-semibold">
+                                        <i class="fas fa-sort-numeric-down me-2 text-warning"></i>Orden
+                                    </label>
+                                    <input type="number" class="form-control" id="orden" name="orden" 
+                                           value="{{ recurso.orden }}" min="0">
+                                    <div class="form-text">Orden de aparición en la lista</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="descripcion" class="form-label fw-semibold">
+                                <i class="fas fa-align-left me-2 text-warning"></i>Descripción
+                            </label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="4" 
+                                      placeholder="Describe el contenido y propósito de este recurso..." required>{{ recurso.descripcion }}</textarea>
+                            <div class="form-text">Explica cómo este recurso ayudará a los usuarios</div>
+                        </div>
+
+                        <!-- Categoría y Tipo -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label for="categoria" class="form-label fw-semibold">
+                                        <i class="fas fa-tags me-2 text-warning"></i>Categoría
+                                    </label>
+                                    <select class="form-select" id="categoria" name="categoria" required>
+                                        {% for cat_value, cat_label in recurso.CATEGORIA_CHOICES %}
+                                        <option value="{{ cat_value }}" {% if recurso.categoria == cat_value %}selected{% endif %}>
+                                            {{ cat_label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label for="tipo_archivo" class="form-label fw-semibold">
+                                        <i class="fas fa-file me-2 text-warning"></i>Tipo de Archivo
+                                    </label>
+                                    <select class="form-select" id="tipo_archivo" name="tipo_archivo" required>
+                                        {% for tipo_value, tipo_label in recurso.TIPO_ARCHIVO_CHOICES %}
+                                        <option value="{{ tipo_value }}" {% if recurso.tipo_archivo == tipo_value %}selected{% endif %}>
+                                            {{ tipo_label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personalización Visual -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fas fa-palette me-2 text-warning"></i>Icono del Recurso
+                                    </label>
+                                    <div class="card bg-light border icon-preview-card">
+                                        <div class="card-body text-center py-3">
+                                            <i id="iconPreview" class="{{ recurso.icono }} fa-2x text-{{ recurso.color }} mb-2"></i>
+                                            <div class="small text-muted" id="iconText">Icono actual: {{ recurso.icono }}</div>
+                                            <input type="hidden" id="icono" name="icono" value="{{ recurso.icono }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-text">El icono se actualiza automáticamente según el tipo de archivo</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label for="color" class="form-label fw-semibold">
+                                        <i class="fas fa-fill-drip me-2 text-warning"></i>Color del Recurso
+                                    </label>
+                                    <select class="form-select" id="color" name="color">
+                                        <option value="primary" {% if recurso.color == 'primary' %}selected{% endif %}>🔵 Primary (Azul)</option>
+                                        <option value="success" {% if recurso.color == 'success' %}selected{% endif %}>🟢 Success (Verde)</option>
+                                        <option value="info" {% if recurso.color == 'info' %}selected{% endif %}>🔵 Info (Celeste)</option>
+                                        <option value="warning" {% if recurso.color == 'warning' %}selected{% endif %}>🟠 Warning (Naranja)</option>
+                                        <option value="danger" {% if recurso.color == 'danger' %}selected{% endif %}>🔴 Danger (Rojo)</option>
+                                        <option value="secondary" {% if recurso.color == 'secondary' %}selected{% endif %}>⚫ Secondary (Gris)</option>
+                                    </select>
+                                    <div class="form-text">Color que se mostrará en las tarjetas del recurso</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Archivo -->
+                        <div class="mb-4">
+                            <label for="archivo" class="form-label fw-semibold">
+                                <i class="fas fa-sync-alt me-2 text-warning"></i>Actualizar Archivo
+                            </label>
+                            <div class="file-upload-area">
+                                <div class="current-file-info mb-3 p-3 bg-light rounded">
+                                    <small class="text-muted d-block">Archivo actual:</small>
+                                    <strong class="text-dark">{{ recurso.archivo.name }}</strong>
+                                    <br>
+                                    <small class="text-muted">Tamaño: {{ recurso.tamaño }}</small>
+                                </div>
+                                <input type="file" class="form-control" id="archivo" name="archivo"
+                                       accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.avi,.mp3,.wav">
+                                <div class="form-text">Deja vacío para mantener el archivo actual. Formatos aceptados: PDF, Word, Excel, PowerPoint, Imágenes, Video, Audio</div>
+                            </div>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="activo" name="activo" {% if recurso.activo %}checked{% endif %}>
+                                <label class="form-check-label fw-semibold" for="activo">
+                                    <i class="fas fa-toggle-on me-2 text-success"></i>Recurso Activo
+                                </label>
+                                <div class="form-text">Los recursos inactivos no serán visibles para los usuarios</div>
+                            </div>
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <a href="{% url 'miapp:admin_gestionar_herramientas' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <div>
+                                <button type="submit" class="btn btn-warning btn-lg px-4">
+                                    <i class="fas fa-save me-2"></i>Actualizar Recurso
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #fffbf0 0%, #ffffff 100%);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border-left: 4px solid #ffc107;
+    }
+    
+    .bg-gradient-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+    }
+    
+    .current-resource-info {
+        border-left: 3px solid #ffc107;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
+    
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #ffc107;
+        box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+    }
+    
+    .form-control-lg {
+        font-size: 1.1rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    .file-upload-area {
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    
+    .file-upload-area:hover {
+        border-color: #ffc107;
+        background: #fffbf0;
+    }
+    
+    .current-file-info {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-left: 3px solid #28a745;
+    }
+    
+    .btn-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        color: white;
+    }
+    
+    .btn-warning:hover {
+        background: linear-gradient(135deg, #e0a800 0%, #e55a00 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3);
+        color: white;
+    }
+    
+    .btn-outline-secondary {
+        border-radius: 10px;
+        font-weight: 600;
+    }
+    
+    .form-label {
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
+    .icon-preview-card {
+        transition: all 0.3s ease;
+    }
+    
+    .icon-preview-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-check-input:checked {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoArchivoSelect = document.getElementById('tipo_archivo');
+        const iconPreview = document.getElementById('iconPreview');
+        const iconInput = document.getElementById('icono');
+        const iconText = document.getElementById('iconText');
+        const colorSelect = document.getElementById('color');
+        
+        // Mapeo de tipos de archivo a iconos
+        const iconMap = {
+            'pdf': 'fas fa-file-pdf',
+            'doc': 'fas fa-file-word',
+            'xls': 'fas fa-file-excel',
+            'ppt': 'fas fa-file-powerpoint',
+            'image': 'fas fa-file-image',
+            'video': 'fas fa-file-video',
+            'audio': 'fas fa-file-audio'
+        };
+        
+        // Mapeo de tipos de archivo a textos descriptivos
+        const textMap = {
+            'pdf': 'Icono para documento PDF',
+            'doc': 'Icono para documento Word',
+            'xls': 'Icono para hoja de cálculo',
+            'ppt': 'Icono para presentación',
+            'image': 'Icono para imagen',
+            'video': 'Icono para video',
+            'audio': 'Icono para audio'
+        };
+        
+        // Actualizar icono automáticamente cuando cambia el tipo de archivo
+        tipoArchivoSelect.addEventListener('change', function() {
+            const selectedType = this.value;
+            
+            if (selectedType && iconMap[selectedType]) {
+                const newIcon = iconMap[selectedType];
+                const currentColor = colorSelect.value;
+                const newText = textMap[selectedType] || 'Icono actualizado automáticamente';
+                
+                // Actualizar icono visual
+                iconPreview.className = `${newIcon} fa-2x text-${currentColor} mb-2`;
+                
+                // Actualizar campo oculto
+                iconInput.value = newIcon;
+                
+                // Actualizar texto descriptivo
+                iconText.textContent = newText;
+            }
+        });
+        
+        // Actualizar color del icono cuando cambia el color
+        colorSelect.addEventListener('change', function() {
+            const currentIcon = iconInput.value;
+            const newColor = this.value;
+            
+            if (currentIcon) {
+                iconPreview.className = `${currentIcon} fa-2x text-${newColor} mb-2`;
+            }
+        });
+        
+        // Validación del formulario
+        const form = document.getElementById('editarRecursoForm');
+        form.addEventListener('submit', function(e) {
+            const titulo = document.getElementById('titulo').value.trim();
+            
+            if (!titulo) {
+                e.preventDefault();
+                alert('Por favor ingresa un título para el recurso');
+                return;
+            }
+            
+            // Mostrar loading en el botón
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Actualizando...';
+            submitBtn.disabled = true;
+            
+            // Restaurar después de 5 segundos (por si hay error)
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 5000);
+        });
+        
+        // Preview del nuevo archivo
+        const archivoInput = document.getElementById('archivo');
+        archivoInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                const fileName = this.files[0].name;
+                const fileSize = (this.files[0].size / (1024 * 1024)).toFixed(2);
+                console.log(`Nuevo archivo seleccionado: ${fileName} (${fileSize} MB)`);
+                
+                // Mostrar mensaje de confirmación
+                const fileInfo = document.querySelector('.current-file-info');
+                if (fileInfo) {
+                    fileInfo.innerHTML += `
+                        <div class="mt-2 p-2 bg-warning text-dark rounded">
+                            <small><i class="fas fa-exclamation-triangle me-1"></i>Se reemplazará el archivo actual</small>
+                        </div>
+                    `;
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

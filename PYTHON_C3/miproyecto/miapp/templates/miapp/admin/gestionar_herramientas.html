@@ -1,0 +1,330 @@
+<!-- miapp/templates/miapp/gestionar_herramientas.html -->
+{% extends 'miapp/base.html' %}
+
+{% block title %}Gestionar Herramientas - SoulComfort{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h1 class="h1 fw-bold text-primary mb-2">Gestionar Herramientas</h1>
+                    <p class="text-muted">Administra los recursos del kit de herramientas</p>
+                </div>
+                <a href="{% url 'miapp:crear_recurso' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Nuevo Recurso
+                </a>
+            </div>
+
+            <!-- Mensajes -->
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Tabla de recursos -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Recursos Existentes</h5>
+                </div>
+                <div class="card-body">
+                    {% if recursos %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Categoría</th>
+                                    <th>Tipo</th>
+                                    <th>Tamaño</th>
+                                    <th>Estado</th>
+                                    <th>Orden</th>
+                                    <th>Descargas</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for recurso in recursos %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="{{ recurso.icono }} text-{{ recurso.color }} me-3"></i>
+                                            <div>
+                                                <strong>{{ recurso.titulo }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ recurso.descripcion|truncatewords:10 }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ recurso.get_categoria_display }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">{{ recurso.get_tipo_archivo_display }}</span>
+                                    </td>
+                                    <td>{{ recurso.tamaño }}</td>
+                                    <td>
+                                        {% if recurso.activo %}
+                                        <span class="badge bg-success">Activo</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">Inactivo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ recurso.orden }}</td>
+                                    <td>{{ recurso.descargas }}</td>
+                                    <td class="text-center">
+                                        <div class="action-buttons">
+                                            <!-- Botón Editar -->
+                                            <a href="{% url 'miapp:editar_recurso' recurso.id %}" 
+                                               class="btn btn-action btn-edit" 
+                                               data-bs-toggle="tooltip" 
+                                               data-bs-placement="top"
+                                               title="Editar recurso">
+                                                <div class="btn-content">
+                                                    <i class="fas fa-edit btn-icon"></i>
+                                                    <span class="btn-text">Editar</span>
+                                                </div>
+                                            </a>
+                                            
+                                            <!-- Botón Eliminar -->
+                                            <form method="post" action="{% url 'miapp:eliminar_recurso' recurso.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" 
+                                                        class="btn btn-action btn-delete"
+                                                        data-bs-toggle="tooltip" 
+                                                        data-bs-placement="top"
+                                                        title="Eliminar recurso"
+                                                        onclick="return confirm('¿Estás seguro de eliminar \"{{ recurso.titulo }}\"? Esta acción no se puede deshacer.')">
+                                                    <div class="btn-content">
+                                                        <i class="fas fa-trash-alt btn-icon"></i>
+                                                        <span class="btn-text">Eliminar</span>
+                                                    </div>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No hay recursos creados</h5>
+                        <p class="text-muted">Comienza creando tu primer recurso del kit de herramientas.</p>
+                        <a href="{% url 'miapp:crear_recurso' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Crear Primer Recurso
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <h4>{{ recursos.count }}</h4>
+                            <p class="mb-0">Total Recursos</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h4>{{ recursos|length }}</h4>
+                            <p class="mb-0">Recursos Activos</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h4>{{ recursos|length }}</h4>
+                            <p class="mb-0">Categorías</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body text-center">
+                            <h4>{{ recursos|length }}</h4>
+                            <p class="mb-0">Descargas Totales</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .action-btn {
+        border-radius: 10px;
+        padding: 12px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-orange {
+        background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%);
+        color: white;
+        border: none;
+    }
+    
+    .btn-orange:hover {
+        background: linear-gradient(135deg, #e55a00 0%, #cc4a00 100%);
+        color: white;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btn-action {
+        position: relative;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 90px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .btn-action::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-action:hover::before {
+        left: 100%;
+    }
+
+    .btn-content {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .btn-icon {
+        font-size: 0.9rem;
+        transition: transform 0.3s ease;
+    }
+
+    .btn-text {
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* Botón Editar */
+    .btn-edit {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border: 1px solid #4facfe;
+    }
+
+    .btn-edit:hover {
+        background: linear-gradient(135deg, #3a9bf7 0%, #00d9e6 100%);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+    }
+
+    .btn-edit:hover .btn-icon {
+        transform: scale(1.1) rotate(-5deg);
+    }
+
+    /* Botón Eliminar - CORREGIDO */
+    .btn-delete {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+        color: white;
+        border: 1px solid #ff6b6b;
+    }
+
+    .btn-delete:hover {
+        background: linear-gradient(135deg, #ff5252 0%, #ff7b7b 100%);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    }
+
+    .btn-delete:hover .btn-icon {
+        transform: scale(1.1);
+    }
+
+    /* Versión responsive */
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .btn-action {
+            min-width: 80px;
+            padding: 8px 12px;
+        }
+        
+        .btn-text {
+            display: none;
+        }
+        
+        .btn-content {
+            gap: 0;
+        }
+        
+        .btn-icon {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<script>
+    // Inicializar tooltips de Bootstrap
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+{% endblock %}

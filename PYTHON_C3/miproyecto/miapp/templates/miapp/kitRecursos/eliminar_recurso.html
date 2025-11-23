@@ -1,0 +1,51 @@
+<!-- miapp/templates/miapp/eliminar_recurso.html -->
+{% extends 'miapp/base.html' %}
+
+{% block title %}Eliminar Recurso - SoulComfort{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-trash me-2"></i>Eliminar Recurso
+                    </h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+                        <h5>¿Estás seguro de que quieres eliminar este recurso?</h5>
+                        <p class="text-muted">Esta acción no se puede deshacer.</p>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h6>{{ recurso.titulo }}</h6>
+                            <p class="text-muted mb-2">{{ recurso.descripcion }}</p>
+                            <small class="text-muted">
+                                Categoría: {{ recurso.get_categoria_display }} | 
+                                Tipo: {{ recurso.get_tipo_archivo_display }} | 
+                                Descargas: {{ recurso.descargas }}
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="{% url 'miapp:admin_gestionar_herramientas' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Eliminar Recurso
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

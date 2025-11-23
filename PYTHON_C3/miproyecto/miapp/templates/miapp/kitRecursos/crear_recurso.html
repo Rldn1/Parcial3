@@ -1,0 +1,370 @@
+{% extends 'miapp/base.html' %}
+
+{% block title %}Crear Recurso - SoulComfort{% endblock %}
+
+{% block content %}
+<div class="container py-3">  <!-- Reducido py-4 a py-3 -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">  <!-- Ancho más amplio -->
+            <!-- Header Compacto -->
+            <div class="page-header mb-4">  <!-- Agregado mb-4 -->
+                <div class="d-flex align-items-center mb-3">
+                    <a href="{% url 'miapp:admin_gestionar_herramientas' %}" class="btn btn-outline-secondary btn-sm me-3">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <div>
+                        <h1 class="h3 fw-bold text-primary mb-1">
+                            <i class="fas fa-plus-circle me-2"></i>Crear Nuevo Recurso
+                        </h1>
+                        <p class="text-muted mb-0">Agrega un nuevo recurso al kit de herramientas de bienestar</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario Mejorado -->
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <h5 class="card-title mb-0 fw-bold">
+                        <i class="fas fa-file-alt me-2"></i>Información del Recurso
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" id="recursoForm">
+                        {% csrf_token %}
+                        
+                        <!-- Información Básica -->
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-4">
+                                    <label for="titulo" class="form-label fw-semibold">
+                                        <i class="fas fa-heading me-2 text-primary"></i>Título del Recurso
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="titulo" name="titulo" 
+                                           placeholder="Ej: Guía de Meditación para Principiantes" required>
+                                    <div class="form-text">Un título claro y descriptivo para el recurso</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-4">
+                                    <label for="orden" class="form-label fw-semibold">
+                                        <i class="fas fa-sort-numeric-down me-2 text-primary"></i>Orden
+                                    </label>
+                                    <input type="number" class="form-control" id="orden" name="orden" value="0" min="0">
+                                    <div class="form-text">Orden de aparición en la lista</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="descripcion" class="form-label fw-semibold">
+                                <i class="fas fa-align-left me-2 text-primary"></i>Descripción
+                            </label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="4" 
+                                      placeholder="Describe el contenido y propósito de este recurso..." required></textarea>
+                            <div class="form-text">Explica cómo este recurso ayudará a los usuarios</div>
+                        </div>
+
+                        <!-- Categoría y Tipo -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label for="categoria" class="form-label fw-semibold">
+                                        <i class="fas fa-tags me-2 text-primary"></i>Categoría
+                                    </label>
+                                    <select class="form-select" id="categoria" name="categoria" required>
+                                        <option value="">Seleccionar categoría...</option>
+                                        <option value="meditacion">🧘 Meditación</option>
+                                        <option value="ansiedad">😰 Manejo de Ansiedad</option>
+                                        <option value="sueno">😴 Calidad de Sueño</option>
+                                        <option value="autocompasion">💖 Autocompasión</option>
+                                        <option value="comunicacion">💬 Comunicación</option>
+                                        <option value="planificacion">📅 Planificación</option>
+                                        <option value="ejercicios">💪 Ejercicios Prácticos</option>
+                                        <option value="guias">📚 Guías Rápidas</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label for="tipo_archivo" class="form-label fw-semibold">
+                                        <i class="fas fa-file me-2 text-primary"></i>Tipo de Archivo
+                                    </label>
+                                    <select class="form-select" id="tipo_archivo" name="tipo_archivo" required>
+                                        <option value="">Seleccionar tipo de archivo...</option>
+                                        <option value="pdf">📄 PDF Document</option>
+                                        <option value="doc">📝 Word Document</option>
+                                        <option value="xls">📊 Excel Spreadsheet</option>
+                                        <option value="ppt">🎬 PowerPoint</option>
+                                        <option value="image">🖼️ Image</option>
+                                        <option value="video">🎥 Video</option>
+                                        <option value="audio">🎵 Audio</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personalización Visual -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fas fa-palette me-2 text-primary"></i>Icono Automático
+                                    </label>
+                                    <div class="card bg-light border">
+                                        <div class="card-body text-center py-3">
+                                            <i id="iconPreview" class="fas fa-file-pdf fa-2x text-primary mb-2"></i>
+                                            <div class="small text-muted" id="iconText">Icono se selecciona automáticamente</div>
+                                            <input type="hidden" id="icono" name="icono" value="fas fa-file-pdf">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label for="color" class="form-label fw-semibold">
+                                        <i class="fas fa-fill-drip me-2 text-primary"></i>Color del Recurso
+                                    </label>
+                                    <select class="form-select" id="color" name="color">
+                                        <option value="primary">🔵 Primary (Azul - Recomendado)</option>
+                                        <option value="success">🟢 Success (Verde)</option>
+                                        <option value="info">🔵 Info (Celeste)</option>
+                                        <option value="warning">🟠 Warning (Naranja)</option>
+                                        <option value="danger">🔴 Danger (Rojo)</option>
+                                        <option value="secondary">⚫ Secondary (Gris)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Archivo -->
+                        <div class="mb-4">
+                            <label for="archivo" class="form-label fw-semibold">
+                                <i class="fas fa-upload me-2 text-primary"></i>Archivo del Recurso
+                            </label>
+                            <div class="file-upload-area">
+                                <input type="file" class="form-control" id="archivo" name="archivo" required 
+                                       accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.avi,.mp3,.wav">
+                                <div class="form-text">Formatos aceptados: PDF, Word, Excel, PowerPoint, Imágenes, Video, Audio</div>
+                            </div>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="activo" name="activo" checked>
+                                <label class="form-check-label fw-semibold" for="activo">
+                                    <i class="fas fa-toggle-on me-2 text-success"></i>Recurso Activo
+                                </label>
+                                <div class="form-text">Los recursos inactivos no serán visibles para los usuarios</div>
+                            </div>
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <a href="{% url 'miapp:admin_gestionar_herramientas' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-4">
+                                <i class="fas fa-save me-2"></i>Crear Recurso
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border-left: 4px solid #6C63FF;
+    }
+    
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #6C63FF 0%, #8A82FF 100%) !important;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
+    
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #6C63FF;
+        box-shadow: 0 0 0 0.2rem rgba(108, 99, 255, 0.25);
+    }
+    
+    .form-control-lg {
+        font-size: 1.1rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    .file-upload-area {
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    
+    .file-upload-area:hover {
+        border-color: #6C63FF;
+        background: #f0f2ff;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #6C63FF 0%, #8A82FF 100%);
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5A52E0 0%, #7A72FF 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(108, 99, 255, 0.3);
+    }
+    
+    .btn-outline-secondary {
+        border-radius: 10px;
+        font-weight: 600;
+    }
+    
+    .form-label {
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
+    /* Preview de icono dinámico */
+    .icon-preview-card {
+        transition: all 0.3s ease;
+    }
+    
+    .icon-preview-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoArchivoSelect = document.getElementById('tipo_archivo');
+        const iconPreview = document.getElementById('iconPreview');
+        const iconInput = document.getElementById('icono');
+        const iconText = document.getElementById('iconText');
+        
+        // Mapeo de tipos de archivo a iconos
+        const iconMap = {
+            'pdf': 'fas fa-file-pdf',
+            'doc': 'fas fa-file-word',
+            'xls': 'fas fa-file-excel',
+            'ppt': 'fas fa-file-powerpoint',
+            'image': 'fas fa-file-image',
+            'video': 'fas fa-file-video',
+            'audio': 'fas fa-file-audio'
+        };
+        
+        // Mapeo de tipos de archivo a colores
+        const colorMap = {
+            'pdf': 'text-danger',
+            'doc': 'text-primary',
+            'xls': 'text-success',
+            'ppt': 'text-warning',
+            'image': 'text-info',
+            'video': 'text-purple',
+            'audio': 'text-secondary'
+        };
+        
+        // Mapeo de tipos de archivo a textos descriptivos
+        const textMap = {
+            'pdf': 'Icono para documento PDF',
+            'doc': 'Icono para documento Word',
+            'xls': 'Icono para hoja de cálculo',
+            'ppt': 'Icono para presentación',
+            'image': 'Icono para imagen',
+            'video': 'Icono para video',
+            'audio': 'Icono para audio'
+        };
+        
+        // Actualizar icono automáticamente cuando cambia el tipo de archivo
+        tipoArchivoSelect.addEventListener('change', function() {
+            const selectedType = this.value;
+            
+            if (selectedType && iconMap[selectedType]) {
+                const newIcon = iconMap[selectedType];
+                const newColor = colorMap[selectedType] || 'text-primary';
+                const newText = textMap[selectedType] || 'Icono seleccionado automáticamente';
+                
+                // Actualizar icono visual
+                iconPreview.className = `${newIcon} fa-2x ${newColor} mb-2`;
+                
+                // Actualizar campo oculto
+                iconInput.value = newIcon;
+                
+                // Actualizar texto descriptivo
+                iconText.textContent = newText;
+            }
+        });
+        
+        // Validación del formulario
+        const form = document.getElementById('recursoForm');
+        form.addEventListener('submit', function(e) {
+            const archivo = document.getElementById('archivo');
+            const titulo = document.getElementById('titulo').value.trim();
+            
+            if (!titulo) {
+                e.preventDefault();
+                alert('Por favor ingresa un título para el recurso');
+                return;
+            }
+            
+            if (!archivo.files.length) {
+                e.preventDefault();
+                alert('Por favor selecciona un archivo para subir');
+                return;
+            }
+            
+            // Mostrar loading en el botón
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creando...';
+            submitBtn.disabled = true;
+            
+            // Restaurar después de 5 segundos (por si hay error)
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 5000);
+        });
+        
+        // Preview del nombre del archivo
+        const archivoInput = document.getElementById('archivo');
+        archivoInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                const fileName = this.files[0].name;
+                const fileSize = (this.files[0].size / (1024 * 1024)).toFixed(2);
+                console.log(`Archivo seleccionado: ${fileName} (${fileSize} MB)`);
+            }
+        });
+    });
+</script>
+{% endblock %}
