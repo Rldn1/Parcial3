@@ -10,7 +10,29 @@ from .models import (
     CategoriaForo, HiloForo, RespuestaForo
 )
 from .forms import RecursoForm, UserForm, UserProfileForm
+import re  # AÑADE ESTE IMPORT
 
+# ==================== FUNCIÓN PARA CONVERTIR URLs DE YOUTUBE ====================
+
+def extraer_id_youtube(url):
+    """
+    Extrae el ID de YouTube de cualquier formato de URL
+    """
+    if not url:
+        return None
+    
+    patrones = [
+        r'(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)',
+        r'(?:https?:\/\/)?(?:www\.)?youtu\.be\/([a-zA-Z0-9_-]+)',
+        r'(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]+)'
+    ]
+    
+    for patron in patrones:
+        match = re.search(patron, url)
+        if match:
+            return match.group(1)
+    
+    return None
 
 
 def custom_login(request):
@@ -119,8 +141,20 @@ def recursos(request):
 
 @login_required
 def recursos_multimedia(request):
+    categoria_id = request.GET.get('categoria', '')
+    
+    # Filtrar recursos
     recursos_list = Recurso.objects.filter(es_publico=True)
-    return render(request, 'miapp/recursos_multimedia.html', {'recursos': recursos_list})
+    
+    if categoria_id:
+        recursos_list = recursos_list.filter(categoria_id=categoria_id)
+    
+    categorias = CategoriaRecurso.objects.all()
+    
+    return render(request, 'miapp/recursos_multimedia.html', {
+        'recursos': recursos_list,
+        'categorias': categorias
+    })
 
 @login_required
 def tests_psicologicos(request):
@@ -893,6 +927,22 @@ def recursos_view(request):
     return render(request, 'miapp/recursos.html', context)
 
 @login_required
+def detalle_recurso(request, recurso_id):
+    """Vista para mostrar el detalle completo de un recurso"""
+    recurso = get_object_or_404(Recurso, id=recurso_id, es_publico=True)
+    
+    # Extraer ID de YouTube
+    video_id = None
+    if recurso.enlace:
+        video_id = extraer_id_youtube(recurso.enlace)  # Usa la misma función
+    
+    return render(request, 'miapp/detalle_recurso.html', {
+        'recurso': recurso,
+        'video_id': video_id
+    })
+
+
+@login_required
 def descargar_recurso_kit(request, recurso_id):
     recurso = get_object_or_404(RecursosKit, id=recurso_id, activo=True)
     
@@ -1013,4 +1063,3 @@ def eliminar_recurso(request, recurso_id):
         'recurso': recurso,
     }
     return redirect('miapp:admin_gestionar_herramientas') 
-

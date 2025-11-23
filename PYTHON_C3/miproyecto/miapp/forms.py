@@ -5,13 +5,15 @@ from .models import Recurso, UserProfile
 class RecursoForm(forms.ModelForm):
     class Meta:
         model = Recurso
-        fields = ['titulo', 'descripcion', 'tipo_recurso', 'categoria', 'contenido', 'es_publico']
+        fields = ['titulo', 'descripcion', 'tipo_recurso', 'categoria', 'enlace', 'imagen_portada', 'archivo', 'contenido', 'es_publico']
+        
         widgets = {
             'titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Título del recurso'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Descripción del recurso'}),
             'tipo_recurso': forms.Select(attrs={'class': 'form-control'}),
             'categoria': forms.Select(attrs={'class': 'form-control'}),
-            'contenido': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Contenido del recurso...'}),
+            'enlace': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://ejemplo.com'}),
+            'contenido': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Contenido completo del recurso...'}),
             'es_publico': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 

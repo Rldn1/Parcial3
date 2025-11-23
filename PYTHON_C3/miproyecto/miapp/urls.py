@@ -66,5 +66,6 @@ urlpatterns = [
     path('eliminar-recurso/<int:recurso_id>/', views.eliminar_recurso, name='eliminar_recurso'),
     path('descargar-recurso/<int:recurso_id>/', views.descargar_recurso_kit, name='descargar_recurso_kit'),
     
+    path('recurso/<int:recurso_id>/', views.detalle_recurso, name='detalle_recurso'),
 ]
 

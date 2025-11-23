@@ -1,0 +1,392 @@
+{% extends 'miapp/base.html' %}
+
+{% block title %}{{ recurso.titulo }} - SoulComfort{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'miapp:recursos_multimedia' %}">Recursos Multimedia</a></li>
+                    <li class="breadcrumb-item active">{{ recurso.titulo }}</li>
+                </ol>
+            </nav>
+
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center">
+                        <h1 class="h4 mb-0">
+                            <!-- Icono dinámico para cada tipo -->
+                            {% if recurso.tipo_recurso == 'video' %}
+                                <i class="fas fa-video me-2"></i>
+                            {% elif recurso.tipo_recurso == 'articulo' %}
+                                <i class="fas fa-newspaper me-2"></i>
+                            {% elif recurso.tipo_recurso == 'ejercicio' %}
+                                <i class="fas fa-walking me-2"></i>
+                            {% else %}
+                                <i class="fas fa-image me-2"></i>
+                            {% endif %}
+                            {{ recurso.titulo }}
+                        </h1>
+                        <div>
+                            <span class="badge bg-light text-dark me-2">
+                                <i class="fas fa-tag me-1"></i>{{ recurso.categoria.nombre }}
+                            </span>
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-calendar me-1"></i>{{ recurso.creado_en|date:"d M Y" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <!-- CONTENIDO SEGÚN EL TIPO DE RECURSO -->
+                    
+                    {% if recurso.tipo_recurso == 'video' or recurso.tipo_recurso == 'ejercicio' %}
+                        <!-- SECCIÓN PARA VIDEOS Y EJERCICIOS CON VIDEOS -->
+                        <div class="row">
+                            <div class="col-12 col-lg-8 mb-4">
+                                {% if recurso.archivo %}
+                                    <!-- Video subido directamente -->
+                                    <div class="video-container">
+                                        <video controls class="w-100 rounded-3 shadow-sm" style="height: 500px; background: #000;">
+                                            <source src="{{ recurso.archivo.url }}" type="video/mp4">
+                                            Tu navegador no soporta el elemento video.
+                                        </video>
+                                    </div>
+                                
+                                {% elif video_id %}
+                                    <!-- REPRODUCTOR DE YOUTUBE CON API -->
+                                    <div class="youtube-player-container">
+                                        <div id="player-{{ recurso.tipo_recurso }}"></div>
+                                        
+                                        <div class="alert alert-info mt-3">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <span id="player-status-{{ recurso.tipo_recurso }}">Cargando reproductor...</span>
+                                        </div>
+                                    </div>
+                                
+                                {% elif recurso.enlace and not video_id %}
+                                    <!-- Enlace externo (NO es YouTube) -->
+                                    <div class="alert alert-warning text-center p-4">
+                                        <i class="fas fa-external-link-alt fa-3x text-warning mb-3"></i>
+                                        <h5>Ejercicio Externo</h5>
+                                        <p class="mb-3">Este ejercicio está disponible en un sitio externo.</p>
+                                        <a href="{{ recurso.enlace }}" target="_blank" class="btn btn-warning btn-lg">
+                                            <i class="fas fa-play me-2"></i>Realizar Ejercicio
+                                        </a>
+                                    </div>
+                                
+                                {% else %}
+                                    <!-- Sin video ni enlace -->
+                                    <div class="alert alert-secondary text-center p-4">
+                                        <i class="fas fa-{% if recurso.tipo_recurso == 'video' %}video-slash{% else %}walking{% endif %} fa-3x text-muted mb-3"></i>
+                                        <h5>No hay {% if recurso.tipo_recurso == 'video' %}video{% else %}ejercicio{% endif %} disponible</h5>
+                                        <p>Este recurso no contiene contenido para mostrar.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-12 col-lg-4">
+                                <div class="sticky-top" style="top: 100px;">
+                                    <h5 class="fw-bold mb-3">Descripción</h5>
+                                    <p class="text-muted mb-4">{{ recurso.descripcion }}</p>
+                                    
+                                    {% if recurso.contenido %}
+                                        <div class="mb-4">
+                                            <h6 class="fw-bold">
+                                                {% if recurso.tipo_recurso == 'ejercicio' %}
+                                                    Instrucciones del ejercicio:
+                                                {% else %}
+                                                    Contenido adicional:
+                                                {% endif %}
+                                            </h6>
+                                            <div class="bg-light p-3 rounded">
+                                                {{ recurso.contenido|linebreaks }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="d-grid gap-2">
+                                        {% if video_id %}
+                                            <a href="https://www.youtube.com/watch?v={{ video_id }}" target="_blank" class="btn btn-outline-danger">
+                                                <i class="fab fa-youtube me-2"></i>Ver en YouTube
+                                            </a>
+                                        {% elif recurso.enlace and not video_id %}
+                                            <a href="{{ recurso.enlace }}" target="_blank" class="btn btn-outline-warning">
+                                                <i class="fas fa-external-link-alt me-2"></i>Abrir Ejercicio
+                                            </a>
+                                        {% endif %}
+                                        <a href="{% url 'miapp:recursos_multimedia' %}" class="btn btn-outline-primary">
+                                            <i class="fas fa-arrow-left me-2"></i>Volver a Recursos
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% elif recurso.tipo_recurso == 'articulo' %}
+                        <!-- SECCIÓN PARA ARTÍCULOS -->
+                        <div class="row">
+                            <div class="col-12 col-lg-4 mb-4">
+                                {% if recurso.imagen_portada %}
+                                    <div class="text-center">
+                                        <img src="{{ recurso.imagen_portada.url }}" 
+                                             alt="{{ recurso.titulo }}" 
+                                             class="img-fluid rounded-3 shadow-sm mb-3"
+                                             style="max-height: 300px; object-fit: cover;">
+                                        <button class="btn btn-outline-primary btn-sm" 
+                                                onclick="openModal('{{ recurso.imagen_portada.url }}')">
+                                            <i class="fas fa-search-plus me-1"></i>Ver imagen completa
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    <div class="text-center p-4 border rounded-3 bg-light">
+                                        <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">Sin imagen de portada</p>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if recurso.enlace %}
+                                    <div class="mt-3">
+                                        <a href="{{ recurso.enlace }}" target="_blank" class="btn btn-success w-100">
+                                            <i class="fas fa-external-link-alt me-2"></i>Leer artículo completo
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-12 col-lg-8">
+                                <h4 class="fw-bold mb-3">Descripción</h4>
+                                <p class="text-muted mb-4">{{ recurso.descripcion }}</p>
+                                
+                                {% if recurso.contenido %}
+                                    <div class="article-content">
+                                        <h5 class="fw-bold mb-3">Contenido del artículo:</h5>
+                                        <div class="bg-light p-4 rounded">
+                                            {{ recurso.contenido|linebreaks }}
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-info text-center p-4">
+                                        <i class="fas fa-info-circle fa-2x mb-3"></i>
+                                        <p>Este artículo no tiene contenido adicional. Utiliza el enlace externo para leer el artículo completo.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    {% else %}
+                        <!-- SECCIÓN PARA TEXTO/IMAGEN (por defecto) -->
+                        <div class="row">
+                            {% if recurso.imagen_portada %}
+                                <div class="col-12 col-md-6 mb-4">
+                                    <div class="text-center">
+                                        <img src="{{ recurso.imagen_portada.url }}" 
+                                             alt="{{ recurso.titulo }}" 
+                                             class="img-fluid rounded-3 shadow-sm"
+                                             style="max-height: 400px; object-fit: cover;">
+                                        <button class="btn btn-outline-primary btn-sm mt-2" 
+                                                onclick="openModal('{{ recurso.imagen_portada.url }}')">
+                                            <i class="fas fa-search-plus me-1"></i>Ver imagen completa
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="col-12 {% if recurso.imagen_portada %}col-md-6{% endif %}">
+                                <h4 class="fw-bold mb-3">Descripción</h4>
+                                <p class="text-muted mb-4">{{ recurso.descripcion }}</p>
+                                
+                                {% if recurso.contenido %}
+                                    <div class="content-section">
+                                        <h5 class="fw-bold mb-3">Contenido:</h5>
+                                        <div class="bg-light p-4 rounded">
+                                            {{ recurso.contenido|linebreaks }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if recurso.enlace %}
+                                    <div class="mt-3">
+                                        <a href="{{ recurso.enlace }}" target="_blank" class="btn btn-success">
+                                            <i class="fas fa-external-link-alt me-2"></i>Ver contenido externo
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-footer bg-light py-3">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-user me-1"></i>Creado por: {{ recurso.creado_por.username }}
+                        </small>
+                        <a href="{% url 'miapp:recursos_multimedia' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Volver a todos los recursos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para imagen grande -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Vista previa completa - {{ recurso.titulo }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid" alt="Vista previa completa">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #player {
+        width: 100%;
+        height: 400px;
+        border-radius: 12px;
+    }
+    
+    .sticky-top {
+        position: sticky;
+        z-index: 10;
+    }
+    
+    @media (max-width: 768px) {
+        #player {
+            height: 300px;
+        }
+        
+        .sticky-top {
+            position: static;
+        }
+    }
+</style>
+
+<!-- JavaScript para videos de YouTube (Videos y Ejercicios) -->
+{% if video_id and recurso.tipo_recurso in 'video,ejercicio' %}
+<script>
+// 1. Cargar API de YouTube
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+var player;
+var videoId = '{{ video_id }}';
+var tipoRecurso = '{{ recurso.tipo_recurso }}';
+
+// 2. Función requerida por YouTube
+function onYouTubeIframeAPIReady() {
+    console.log('YouTube API lista, videoId:', videoId, 'Tipo:', tipoRecurso);
+    
+    if (videoId) {
+        player = new YT.Player('player-' + tipoRecurso, {
+            height: '100%',
+            width: '100%',
+            videoId: videoId,
+            playerVars: {
+                'playsinline': 1,
+                'rel': 0,
+                'modestbranding': 1,
+                'controls': 1,
+                'enablejsapi': 1,
+                'origin': window.location.origin
+            },
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange,
+                'onError': onPlayerError
+            }
+        });
+    } else {
+        document.getElementById('player-status-' + tipoRecurso).textContent = 'No hay video disponible';
+    }
+}
+
+// 3. Cuando el reproductor está listo
+function onPlayerReady(event) {
+    console.log('Reproductor listo para:', tipoRecurso);
+    updatePlayerStatus('Reproductor listo');
+}
+
+// 4. Manejar cambios de estado
+function onPlayerStateChange(event) {
+    var states = {
+        '-1': 'No iniciado',
+        '0': 'Terminado',
+        '1': 'Reproduciendo',
+        '2': 'Pausado',
+        '3': 'Buffering'
+    };
+    
+    var state = states[event.data] || 'Desconocido';
+    updatePlayerStatus('Estado: ' + state);
+}
+
+// 5. Manejar errores
+function onPlayerError(event) {
+    var errors = {
+        '2': 'ID inválido',
+        '5': 'Error HTML5',
+        '100': 'Video no encontrado',
+        '101': 'No permite incrustación',
+        '150': 'Restricciones de incrustación'
+    };
+    
+    var error = errors[event.data] || 'Error ' + event.data;
+    updatePlayerStatus('Error: ' + error);
+    
+    // Mostrar mensaje de error
+    showError('No se puede mostrar el video: ' + error);
+}
+
+// 6. Funciones auxiliares
+function updatePlayerStatus(message) {
+    document.getElementById('player-status-' + tipoRecurso).textContent = message;
+}
+
+function showError(message) {
+    var container = document.querySelector('.youtube-player-container');
+    container.innerHTML = `
+        <div class="alert alert-danger text-center p-4">
+            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+            <h5>Error al cargar el video</h5>
+            <p>${message}</p>
+            <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" class="btn btn-danger mt-2">
+                <i class="fab fa-youtube me-2"></i>Ver en YouTube
+            </a>
+        </div>
+    `;
+}
+</script>
+{% endif %}
+
+<!-- JavaScript para modal de imágenes -->
+<script>
+// Función para abrir modal de imagen
+function openModal(imageUrl) {
+    document.getElementById('modalImage').src = imageUrl;
+    new bootstrap.Modal(document.getElementById('imageModal')).show();
+}
+
+// Inicialización general
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Página de detalle de recurso cargada - Tipo: {{ recurso.tipo_recurso }}');
+});
+</script>
+{% endblock %}
