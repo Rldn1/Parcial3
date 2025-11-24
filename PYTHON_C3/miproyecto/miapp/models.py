@@ -53,9 +53,6 @@ class CategoriaRecurso(models.Model):
     def __str__(self):
         return self.nombre
 
-# Recursos multimedia
-# En models.py, en la clase Recurso, verificar que tengas estos campos:
-
 class Recurso(models.Model):
     TIPO_RECURSO_CHOICES = [
         ('video', 'Video'),
