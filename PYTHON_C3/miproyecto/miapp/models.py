@@ -72,9 +72,20 @@ class Recurso(models.Model):
     imagen_portada = models.ImageField(upload_to='portadas/', blank=True, null=True)
     archivo = models.FileField(upload_to='recursos/', blank=True, null=True)
     contenido = models.TextField(blank=True)
+    duracion = models.IntegerField(
+        default=0,
+        verbose_name="Duración (minutos)",
+        help_text="Duración del recurso en minutos"
+    )
+    es_embed = models.BooleanField(
+        default=False,
+        verbose_name="¿Es contenido embed?",
+        help_text="Marcar si el contenido se puede incrustar"
+    )
     es_publico = models.BooleanField(default=True)
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE)
     creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.titulo
