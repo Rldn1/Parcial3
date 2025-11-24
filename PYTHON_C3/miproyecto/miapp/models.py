@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.validators import FileExtensionValidator 
 
 class UserProfile(models.Model):
     TIPO_USUARIO_CHOICES = [
@@ -307,6 +308,8 @@ class ResultadoTestPersonalizado(models.Model):
     def __str__(self):
         return f"Test de {self.paciente.username} - {self.fecha_test}"
 
+
+#====================================================================
 class ContenidoPersonalizado(models.Model):
     TIPO_CONTENIDO = [
         ('video', 'Video'),
@@ -320,12 +323,44 @@ class ContenidoPersonalizado(models.Model):
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField()
     tipo_contenido = models.CharField(max_length=20, choices=TIPO_CONTENIDO)
-    archivo = models.FileField(upload_to='contenido_personalizado/', blank=True, null=True)
-    url = models.URLField(blank=True)
+    archivo = models.FileField(
+        upload_to='contenido_personalizado/%Y/%m/%d/', 
+        blank=True, 
+        null=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'mp4', 'avi', 'mov'])
+        ]
+    )
+    url = models.URLField(blank=True, verbose_name="URL del contenido")
     fecha_creacion = models.DateTimeField(auto_now_add=True)
+    esta_activo = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-fecha_creacion']
+        verbose_name = 'Contenido Personalizado'
+        verbose_name_plural = 'Contenidos Personalizados'
 
     def __str__(self):
         return f"{self.titulo} - Para {self.paciente.username}"
+
+    def get_tipo_icono(self):
+        iconos = {
+            'video': '🎬',
+            'infografia': '📊',
+            'articulo': '📄',
+            'ejercicio': '💪'
+        }
+        return iconos.get(self.tipo_contenido, '📎')
+
+    @property
+    def tiene_archivo(self):
+        return bool(self.archivo)
+
+    @property
+    def tiene_url(self):
+        return bool(self.url)
+    
+#====================================================================
 
 # kit de herramienta 
 class RecursosKit(models.Model):

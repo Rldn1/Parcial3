@@ -3,51 +3,148 @@
 {% block title %}Mi Contenido Personalizado - SoulComfort{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">📚 Mi Contenido Personalizado</h2>
-    
-    {% if contenido %}
+<div class="container py-5 mt-5">
     <div class="row">
-        {% for item in contenido %}
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        {% if item.tipo_contenido == 'video' %}🎥
-                        {% elif item.tipo_contenido == 'infografia' %}📊
-                        {% elif item.tipo_contenido == 'articulo' %}📄
-                        {% else %}💪{% endif %}
-                        {{ item.titulo }}
-                    </h6>
+        <div class="col-12">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-bold text-primary mb-3">
+                    Mi Contenido Personalizado
+                </h1>
+                <p class="lead text-muted">Contenido especializado creado para tu bienestar mental</p>
+            </div>
+
+            {% if contenido %}
+                <!-- Navegación por tipos -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Filtrar por tipo:</h5>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-outline-primary active" data-filter="all">Todos</button>
+                                    <button type="button" class="btn btn-outline-primary" data-filter="video">🎬 Videos</button>
+                                    <button type="button" class="btn btn-outline-primary" data-filter="infografia">📊 Infografías</button>
+                                    <button type="button" class="btn btn-outline-primary" data-filter="articulo">📄 Artículos</button>
+                                    <button type="button" class="btn btn-outline-primary" data-filter="ejercicio">💪 Ejercicios</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">{{ item.descripcion }}</p>
-                    <p class="text-muted small">
-                        <strong>Subido por:</strong> {{ item.pasante.username }}<br>
-                        <strong>Fecha:</strong> {{ item.fecha_creacion|date:"d/m/Y" }}
-                    </p>
+
+                <!-- Contenido -->
+                {% for tipo, items in contenido_por_tipo.items %}
+                <div class="content-section" data-type="{{ tipo }}">
+                    <h3 class="text-primary mb-4">
+                        {{ items.0.get_tipo_contenido_display }}
+                        <span class="badge bg-primary">{{ items|length }}</span>
+                    </h3>
+                    
+                    <div class="row">
+                        {% for item in items %}
+                        <div class="col-lg-6 mb-4">
+                            <div class="card h-100 content-card">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">{{ item.get_tipo_icono }} {{ item.titulo }}</h5>
+                                    <small class="text-muted">{{ item.fecha_creacion|date:"d/m/Y" }}</small>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">{{ item.descripcion }}</p>
+                                    
+                                    <div class="mb-3">
+                                        <small class="text-muted">
+                                            <strong>Subido por:</strong> {{ item.pasante.username }}
+                                        </small>
+                                    </div>
+                                    
+                                    <!-- Recursos -->
+                                    <div class="resource-links">
+                                        {% if item.tiene_archivo %}
+                                        <a href="{{ item.archivo.url }}" 
+                                           class="btn btn-outline-primary btn-sm me-2 mb-2" 
+                                           target="_blank" 
+                                           download>
+                                            📥 Descargar Archivo
+                                        </a>
+                                        {% endif %}
+                                        
+                                        {% if item.tiene_url %}
+                                        <a href="{{ item.url }}" 
+                                           class="btn btn-outline-success btn-sm me-2 mb-2" 
+                                           target="_blank">
+                                            🌐 Ver Enlace
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                <div class="card-footer">
-                    {% if item.archivo %}
-                    <a href="{{ item.archivo.url }}" class="btn btn-sm btn-primary" target="_blank">
-                        📥 Descargar
-                    </a>
-                    {% endif %}
-                    {% if item.url %}
-                    <a href="{{ item.url }}" class="btn btn-sm btn-success" target="_blank">
-                        🌐 Ver Online
-                    </a>
-                    {% endif %}
+                <hr class="my-5">
+                {% endfor %}
+                
+            {% else %}
+            <div class="text-center py-5">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h4>Aún no tienes contenido personalizado</h4>
+                    <p class="mb-0">Tu pasante te asignará contenido especializado basado en tus resultados.</p>
                 </div>
             </div>
+            {% endif %}
         </div>
-        {% endfor %}
     </div>
-    {% else %}
-    <div class="alert alert-info">
-        <p class="mb-0">Aún no tienes contenido personalizado. Realiza el test para que los pasantes puedan subir contenido específico para ti.</p>
-        <a href="{% url 'miapp:realizar_test' %}" class="btn btn-primary mt-2">📊 Realizar Test</a>
-    </div>
-    {% endif %}
 </div>
+
+<style>
+    .content-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .content-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .resource-links {
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+    }
+    
+    .content-section {
+        display: block;
+    }
+</style>
+
+<script>
+    // Filtrado por tipo de contenido
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterButtons = document.querySelectorAll('[data-filter]');
+        const contentSections = document.querySelectorAll('.content-section');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const filter = this.getAttribute('data-filter');
+                
+                // Actualizar botones activos
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Mostrar/ocultar contenido
+                contentSections.forEach(section => {
+                    if (filter === 'all' || section.getAttribute('data-type') === filter) {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+            });
+        });
+    });
+</script>
 {% endblock %}
