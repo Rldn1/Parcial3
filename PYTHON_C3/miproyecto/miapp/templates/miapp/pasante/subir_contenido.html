@@ -11,43 +11,76 @@
                     <h4 class="mb-0">📎 Subir Contenido para {{ paciente.username }}</h4>
                 </div>
                 <div class="card-body">
+                    <!-- Mensajes -->
+                    {% if messages %}
+                    <div class="mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         
                         <div class="mb-3">
-                            <label for="titulo" class="form-label">Título del Contenido</label>
-                            <input type="text" class="form-control" id="titulo" name="titulo" required>
+                            <label for="titulo" class="form-label">Título del Contenido *</label>
+                            <input type="text" class="form-control" id="titulo" name="titulo" 
+                                   required maxlength="200" placeholder="Ingresa un título descriptivo">
                         </div>
                         
                         <div class="mb-3">
-                            <label for="descripcion" class="form-label">Descripción</label>
-                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required></textarea>
+                            <label for="descripcion" class="form-label">Descripción *</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" 
+                                      rows="3" required placeholder="Describe el contenido y su propósito..."></textarea>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="tipo_contenido" class="form-label">Tipo de Contenido</label>
+                            <label for="tipo_contenido" class="form-label">Tipo de Contenido *</label>
                             <select class="form-select" id="tipo_contenido" name="tipo_contenido" required>
                                 <option value="">Seleccionar tipo...</option>
-                                <option value="video">Video</option>
-                                <option value="infografia">Infografía</option>
-                                <option value="articulo">Artículo</option>
-                                <option value="ejercicio">Ejercicio</option>
+                                <option value="video">🎬 Video</option>
+                                <option value="infografia">📊 Infografía</option>
+                                <option value="articulo">📄 Artículo</option>
+                                <option value="ejercicio">💪 Ejercicio</option>
                             </select>
                         </div>
                         
                         <div class="mb-3">
                             <label for="archivo" class="form-label">Archivo (opcional)</label>
-                            <input type="file" class="form-control" id="archivo" name="archivo">
+                            <input type="file" class="form-control" id="archivo" name="archivo"
+                                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.avi,.mov">
+                            <div class="form-text">
+                                Formatos permitidos: PDF, Word, imágenes (JPG, PNG), video (MP4, AVI, MOV). Máx. 10MB.
+                            </div>
                         </div>
                         
                         <div class="mb-3">
                             <label for="url" class="form-label">URL (opcional)</label>
-                            <input type="url" class="form-control" id="url" name="url" placeholder="https://...">
+                            <input type="url" class="form-control" id="url" name="url" 
+                                   placeholder="https://ejemplo.com/contenido">
+                            <div class="form-text">
+                                Enlace a video de YouTube, artículo online, recurso educativo, etc.
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <small>
+                                <strong>💡 Nota:</strong> Debes proporcionar al menos un archivo o una URL.
+                                El contenido será visible inmediatamente para el paciente.
+                            </small>
                         </div>
                         
                         <div class="text-center">
-                            <button type="submit" class="btn btn-success">📤 Subir Contenido</button>
-                            <a href="{% url 'miapp:ver_resultados_pasante' %}" class="btn btn-outline-secondary">← Volver</a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                📤 Subir Contenido
+                            </button>
+                            <a href="{% url 'miapp:ver_resultados_pasante' %}" class="btn btn-outline-secondary">
+                                ← Volver a Resultados
+                            </a>
                         </div>
                     </form>
                 </div>

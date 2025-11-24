@@ -855,13 +855,68 @@ def subir_contenido_personalizado(request, paciente_id):
         'seccion_actual': 'contenido'
     })
 
+
 @login_required
-def ver_contenido_personalizado(request):
-    """Vista para que los pacientes vean su contenido personalizado"""
-    contenido = ContenidoPersonalizado.objects.filter(paciente=request.user).order_by('-fecha_creacion')
-    return render(request, 'miapp/ver_contenido_personalizado.html', {
-        'contenido': contenido,
-        'seccion_actual': 'mi_contenido'
+def subir_contenido_personalizado(request, paciente_id):
+    """Vista para que los pasantes suban contenido personalizado"""
+    if not request.user.userprofile.es_pasante() and not request.user.userprofile.es_admin():
+        messages.error(request, "No tienes permisos para acceder a esta función.")
+        return redirect('miapp:index')  
+    
+    from django.contrib.auth.models import User
+    paciente = get_object_or_404(User, id=paciente_id)
+    
+    if request.method == 'POST':
+        try:
+            titulo = request.POST.get('titulo', '').strip()
+            descripcion = request.POST.get('descripcion', '').strip()
+            tipo_contenido = request.POST.get('tipo_contenido')
+            archivo = request.FILES.get('archivo')
+            url = request.POST.get('url', '').strip()
+
+            # Validaciones básicas
+            if not titulo:
+                messages.error(request, "El título es obligatorio.")
+                return render(request, 'miapp/pasante/subir_contenido.html', {'paciente': paciente})
+            
+            if not descripcion:
+                messages.error(request, "La descripción es obligatoria.")
+                return render(request, 'miapp/pasante/subir_contenido.html', {'paciente': paciente})
+            
+            if not tipo_contenido:
+                messages.error(request, "Debes seleccionar un tipo de contenido.")
+                return render(request, 'miapp/pasante/subir_contenido.html', {'paciente': paciente})
+            
+            # Validar que al menos tenga archivo o URL
+            if not archivo and not url:
+                messages.error(request, "Debes subir un archivo o proporcionar una URL.")
+                return render(request, 'miapp/pasante/subir_contenido.html', {'paciente': paciente})
+
+            # Validar tamaño del archivo (max 10MB)
+            if archivo and archivo.size > 10 * 1024 * 1024:
+                messages.error(request, "El archivo no puede ser mayor a 10MB.")
+                return render(request, 'miapp/pasante/subir_contenido.html', {'paciente': paciente})
+
+            contenido = ContenidoPersonalizado(
+                pasante=request.user,
+                paciente=paciente,
+                titulo=titulo,
+                descripcion=descripcion,
+                tipo_contenido=tipo_contenido,
+                archivo=archivo,
+                url=url
+            )
+            contenido.save()
+            
+            messages.success(request, f"✅ Contenido '{titulo}' subido exitosamente para {paciente.username}.")
+            return redirect('miapp:ver_resultados_pasante')
+            
+        except Exception as e:
+            messages.error(request, f"Error al subir el contenido: {str(e)}")
+    
+    return render(request, 'miapp/pasante/subir_contenido.html', {
+        'paciente': paciente,
+        'seccion_actual': 'contenido'
     })
 
 def calcular_resumen_por_seccion(respuestas):
@@ -871,6 +926,29 @@ def calcular_resumen_por_seccion(respuestas):
         seccion = respuesta.pregunta.seccion
         resumen[seccion] += respuesta.opcion_elegida.puntaje
     return resumen
+
+
+
+@login_required
+def ver_contenido_personalizado(request):
+    """Vista para que los pacientes vean su contenido personalizado"""
+    contenido = ContenidoPersonalizado.objects.filter(
+        paciente=request.user, 
+        esta_activo=True
+    ).order_by('-fecha_creacion')
+    
+    # Agrupar por tipo de contenido
+    contenido_por_tipo = {}
+    for item in contenido:
+        if item.tipo_contenido not in contenido_por_tipo:
+            contenido_por_tipo[item.tipo_contenido] = []
+        contenido_por_tipo[item.tipo_contenido].append(item)
+    
+    return render(request, 'miapp/ver_contenido_personalizado.html', {
+        'contenido': contenido,
+        'contenido_por_tipo': contenido_por_tipo,
+        'seccion_actual': 'mi_contenido'
+    })
 
 
 # ==================== VISTAS PARA "VER COMO USUARIO" ====================
