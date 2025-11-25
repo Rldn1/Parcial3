@@ -61,6 +61,7 @@ urlpatterns = [
 
     # Gestión de herramientas
     path('admin/gestionar-herramientas/', views.gestionar_herramientas, name='admin_gestionar_herramientas'),
+    path('pasante/gestionar-herramientas/', views.gestionar_herramientas, name='pasante_gestionar_herramientas'),
     path('crear-recurso/', views.crear_recurso, name='crear_recurso'),
     path('editar-recurso/<int:recurso_id>/', views.editar_recurso, name='editar_recurso'),
     path('eliminar-recurso/<int:recurso_id>/', views.eliminar_recurso, name='eliminar_recurso'),
