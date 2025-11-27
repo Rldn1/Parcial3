@@ -612,6 +612,7 @@
                             <i class="fas fa-home me-2"></i>Inicio
                         </a>
                     </li>
+
  
                     <!-- MI CONTENIDO - Solo para pacientes -->
                     {% if user.is_authenticated and user.userprofile.tipo_usuario == 'paciente' %}
@@ -667,6 +668,14 @@
                         </a>
                     </li>
                     {% endif %}
+
+
+                    
+                    <!-- ACERCA DE - Para todos -->
+                     <li class="nav-item">
+                        <a class="nav-link" href="/acerca-de/"><i class="fas fa-info-circle me-2"></i>Acerca de
+                        </a>
+                    </li>
                 </ul>
                 
                 <!-- Dropdown de Perfil - Solo para usuarios autenticados -->

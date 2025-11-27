@@ -1141,3 +1141,9 @@ def eliminar_recurso(request, recurso_id):
         'recurso': recurso,
     }
     return redirect('miapp:admin_gestionar_herramientas') 
+
+def acerca_de(request):
+    """Vista para la página Acerca de"""
+    return render(request, 'miapp/acerca_de.html', {
+        'seccion_actual': 'acerca_de'
+    })

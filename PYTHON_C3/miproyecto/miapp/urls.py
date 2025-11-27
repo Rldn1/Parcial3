@@ -67,5 +67,7 @@ urlpatterns = [
     path('descargar-recurso/<int:recurso_id>/', views.descargar_recurso_kit, name='descargar_recurso_kit'),
     
     path('recurso/<int:recurso_id>/', views.detalle_recurso, name='detalle_recurso'),
+    # ACERCA DE
+    path('acerca-de/', views.acerca_de, name='acerca_de'),
 ]
 
