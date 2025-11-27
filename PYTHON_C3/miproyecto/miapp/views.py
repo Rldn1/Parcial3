@@ -1059,6 +1059,21 @@ def gestionar_herramientas(request):
     return render(request, 'miapp/admin/gestionar_herramientas.html', context)
 
 @login_required
+def pasante_gestionar_herramientas(request):
+    # Verificar que el usuario sea pasante
+    if not hasattr(request.user, 'userprofile') or not request.user.userprofile.es_pasante():
+        messages.error(request, "No tienes permisos para acceder a esta página.")
+        return redirect('miapp:index')
+    
+    recursos = RecursosKit.objects.all().order_by('orden', '-fecha_creacion')
+    
+    context = {
+        'recursos': recursos,
+        'es_pasante': True  # Para usar en el template si es necesario
+    }
+    return render(request, 'miapp/pasante/gestion_herramientas.html', context)
+
+@login_required
 def crear_recurso(request):
     if not hasattr(request.user, 'userprofile') or request.user.userprofile.tipo_usuario not in ['pasante', 'admin']:
         messages.error(request, "No tienes permisos para realizar esta acción.")
@@ -1140,7 +1155,9 @@ def eliminar_recurso(request, recurso_id):
     context = {
         'recurso': recurso,
     }
-    return redirect('miapp:admin_gestionar_herramientas') 
+
+
+    return redirect('miapp:admin_gestionar_herramientas')
 
 def acerca_de(request):
     """Vista para la página Acerca de"""

@@ -51,7 +51,7 @@
                                 {% if recurso.archivo %}
                                     <!-- Video subido directamente -->
                                     <div class="video-container">
-                                        <video controls class="w-100 rounded-3 shadow-sm" style="height: 500px; background: #000;">
+                                        <video controls class="w-100 rounded-3 shadow-sm" style="height: 300px; background: #000;">
                                             <source src="{{ recurso.archivo.url }}" type="video/mp4">
                                             Tu navegador no soporta el elemento video.
                                         </video>
@@ -59,24 +59,97 @@
                                 
                                 {% elif video_id %}
                                     <!-- REPRODUCTOR DE YOUTUBE CON API -->
-                                    <div class="youtube-player-container">
+                                    <div class="youtube-player-container mb-4">
                                         <div id="player-{{ recurso.tipo_recurso }}"></div>
                                         
-                                        <div class="alert alert-info mt-3">
+                                        <div class="alert alert-info">
                                             <i class="fas fa-info-circle me-2"></i>
                                             <span id="player-status-{{ recurso.tipo_recurso }}">Cargando reproductor...</span>
                                         </div>
                                     </div>
                                 
                                 {% elif recurso.enlace and not video_id %}
-                                    <!-- Enlace externo (NO es YouTube) -->
-                                    <div class="alert alert-warning text-center p-4">
-                                        <i class="fas fa-external-link-alt fa-3x text-warning mb-3"></i>
-                                        <h5>Ejercicio Externo</h5>
-                                        <p class="mb-3">Este ejercicio está disponible en un sitio externo.</p>
-                                        <a href="{{ recurso.enlace }}" target="_blank" class="btn btn-warning btn-lg">
-                                            <i class="fas fa-play me-2"></i>Realizar Ejercicio
-                                        </a>
+                                    <!-- ENLACE EXTERNO - VERSIÓN CORREGIDA -->
+                                    <div class="enlace-externo-container">
+                                        <div class="card border-warning">
+                                            <div class="card-header bg-warning text-dark">
+                                                <h5 class="mb-0">
+                                                    <i class="fas fa-external-link-alt me-2"></i>
+                                                    {% if '.pdf' in recurso.enlace.lower %}
+                                                        <i class="fas fa-file-pdf me-1"></i>Documento PDF
+                                                    {% else %}
+                                                        Ejercicio Externo
+                                                    {% endif %}
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <!-- VISTA PREVIA PARA PDF CON GOOGLE DOCS VIEWER -->
+                                                {% if '.pdf' in recurso.enlace.lower %}
+                                                    <div class="vista-previa-pdf mb-4">
+                                                        <h6 class="fw-bold mb-3">Vista previa del documento:</h6>
+                                                        <div class="pdf-viewer-container mb-3">
+                                                            <iframe 
+                                                                src="https://docs.google.com/gview?url={{ recurso.enlace|urlencode }}&embedded=true" 
+                                                                width="100%" 
+                                                                height="600"
+                                                                frameborder="0"
+                                                                class="border rounded shadow-sm"
+                                                            >
+                                                                <div class="alert alert-warning text-center p-4">
+                                                                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                                                                    <h5>No se puede mostrar la vista previa</h5>
+                                                                    <p class="mb-3">Tu navegador no puede mostrar el PDF directamente.</p>
+                                                                    <a href="{{ recurso.enlace }}" target="_blank" class="btn btn-primary">
+                                                                        <i class="fas fa-download me-2"></i>Abrir PDF
+                                                                    </a>
+                                                                </div>
+                                                            </iframe>
+                                                            <div class="text-center mt-2">
+                                                                <small class="text-muted">
+                                                                    Vista previa proporcionada por Google Docs Viewer
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                
+                                                    <div class="pdf-info bg-light p-3 rounded mb-3">
+                                                        {% if recurso.descripcion %}
+                                                            <p class="mb-2"><strong>Descripción:</strong> {{ recurso.descripcion }}</p>
+                                                        {% endif %}
+                                                        {% if recurso.contenido %}
+                                                            <p class="mb-0"><strong>Instrucciones:</strong> {{ recurso.contenido|linebreaks }}</p>
+                                                        {% endif %}
+                                                    </div>
+                                                    
+                                                    <a href="{{ recurso.enlace }}" target="_blank" class="btn btn-primary">
+                                                        <i class="fas fa-download me-2"></i>Descargar PDF Completo
+                                                    </a>
+                                                
+                                                {% else %}
+                                                    <!-- CONTENIDO PARA ENLACES NO PDF -->
+                                                    <div class="vista-previa-contenido">
+                                                        <h6 class="fw-bold">Vista previa del ejercicio:</h6>
+                                                        <div class="bg-light p-3 rounded mb-3">
+                                                            {% if recurso.descripcion %}
+                                                                <p class="mb-2"><strong>Descripción:</strong> {{ recurso.descripcion }}</p>
+                                                            {% endif %}
+                                                            {% if recurso.contenido %}
+                                                                <p class="mb-0"><strong>Instrucciones:</strong> {{ recurso.contenido|linebreaks }}</p>
+                                                            {% endif %}
+                                                        </div>
+                                                        
+                                                        <div class="alert alert-info">
+                                                            <i class="fas fa-info-circle me-2"></i>
+                                                            Este ejercicio está disponible en un sitio externo.
+                                                        </div>
+                                                        
+                                                        <a href="{{ recurso.enlace }}" target="_blank" class="btn btn-outline-primary">
+                                                            <i class="fas fa-external-link-alt me-2"></i>Abrir Contenido Completo
+                                                        </a>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
                                     </div>
                                 
                                 {% else %}
@@ -119,64 +192,111 @@
                                                 <i class="fas fa-external-link-alt me-2"></i>Abrir Ejercicio
                                             </a>
                                         {% endif %}
-                                        <a href="{% url 'miapp:recursos_multimedia' %}" class="btn btn-outline-primary">
-                                            <i class="fas fa-arrow-left me-2"></i>Volver a Recursos
-                                        </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                    {% elif recurso.tipo_recurso == 'articulo' %}
-                        <!-- SECCIÓN PARA ARTÍCULOS -->
-                        <div class="row">
-                            <div class="col-12 col-lg-4 mb-4">
-                                {% if recurso.imagen_portada %}
-                                    <div class="text-center">
-                                        <img src="{{ recurso.imagen_portada.url }}" 
-                                             alt="{{ recurso.titulo }}" 
-                                             class="img-fluid rounded-3 shadow-sm mb-3"
-                                             style="max-height: 300px; object-fit: cover;">
-                                        <button class="btn btn-outline-primary btn-sm" 
-                                                onclick="openModal('{{ recurso.imagen_portada.url }}')">
-                                            <i class="fas fa-search-plus me-1"></i>Ver imagen completa
-                                        </button>
-                                    </div>
-                                {% else %}
-                                    <div class="text-center p-4 border rounded-3 bg-light">
-                                        <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted">Sin imagen de portada</p>
-                                    </div>
-                                {% endif %}
-                                
-                                {% if recurso.enlace %}
-                                    <div class="mt-3">
-                                        <a href="{{ recurso.enlace }}" target="_blank" class="btn btn-success w-100">
-                                            <i class="fas fa-external-link-alt me-2"></i>Leer artículo completo
-                                        </a>
-                                    </div>
-                                {% endif %}
+    {% elif recurso.tipo_recurso == 'articulo' %}
+    <!-- SECCIÓN PARA ARTÍCULOooS -->
+    <div class="row">
+        <!-- FILA SUPERIOR: Imagen y Vista Previa PDF -->
+        <div class="col-12 col-lg-6 mb-4">
+            {% if recurso.imagen_portada %}
+                <div class="text-center">
+                    <img src="{{ recurso.imagen_portada.url }}" 
+                         alt="{{ recurso.titulo }}" 
+                         class="img-fluid rounded-3 shadow-sm mb-3"
+                         style="max-height: 400px; object-fit: cover;">
+                    <button class="btn btn-outline-primary btn-sm" 
+                            onclick="openModal('{{ recurso.imagen_portada.url }}')">
+                        <i class="fas fa-search-plus me-1"></i>Ver imagen completa
+                    </button>
+                </div>
+            {% else %}
+                <div class="text-center p-4 border rounded-3 bg-light">
+                    <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Sin imagen de portada</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-12 col-lg-6 mb-4">
+            {% if recurso.enlace and '.pdf' in recurso.enlace.lower %}
+                <!-- Vista previa PDF en la columna derecha -->
+                <div class="pdf-preview-articulo">
+                    <h6 class="fw-bold mb-2">Vista previa del documento:</h6>
+                    <div class="pdf-viewer-container-articulo">
+                        <iframe 
+                            src="https://docs.google.com/gview?url={{ recurso.enlace|urlencode }}&embedded=true" 
+                            width="100%" 
+                            height="400"
+                            frameborder="0"
+                            class="border rounded shadow-sm"
+                        >
+                            <div class="alert alert-warning text-center p-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                No se puede mostrar la vista previa
                             </div>
-                            
-                            <div class="col-12 col-lg-8">
-                                <h4 class="fw-bold mb-3">Descripción</h4>
-                                <p class="text-muted mb-4">{{ recurso.descripcion }}</p>
-                                
-                                {% if recurso.contenido %}
-                                    <div class="article-content">
-                                        <h5 class="fw-bold mb-3">Contenido del artículo:</h5>
-                                        <div class="bg-light p-4 rounded">
-                                            {{ recurso.contenido|linebreaks }}
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    <div class="alert alert-info text-center p-4">
-                                        <i class="fas fa-info-circle fa-2x mb-3"></i>
-                                        <p>Este artículo no tiene contenido adicional. Utiliza el enlace externo para leer el artículo completo.</p>
-                                    </div>
-                                {% endif %}
+                        </iframe>
+                    </div>
+                    <div class="text-center mt-2">
+                        <small class="text-muted">
+                            Vista previa proporcionada por Google Docs Viewer
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="{{ recurso.enlace }}" target="_blank" class="btn btn-danger w-100">
+                        <i class="fas fa-download me-2"></i>
+                        Descargar PDF Completo
+                    </a>
+                </div>
+            {% elif recurso.enlace %}
+                <!-- Si es enlace pero no PDF -->
+                <div class="text-center p-4 border rounded-3 bg-light">
+                    <i class="fas fa-external-link-alt fa-3x text-muted mb-3"></i>
+                    <h5>Enlace externo disponible</h5>
+                    <a href="{{ recurso.enlace }}" target="_blank" class="btn btn-success mt-2">
+                        <i class="fas fa-external-link-alt me-2"></i>
+                        Leer artículo completo
+                    </a>
+                </div>
+            {% else %}
+                <div class="text-center p-4 border rounded-3 bg-light">
+                    <i class="fas fa-link-slash fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No hay enlace externo disponible</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- FILA INFERIOR: Descripción y Contenido -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h4 class="fw-bold mb-3">Descripción</h4>
+                    <p class="text-muted mb-4">{{ recurso.descripcion }}</p>
+                    
+                    {% if recurso.contenido %}
+                        <div class="article-content">
+                            <h5 class="fw-bold mb-3">Contenido del artículo:</h5>
+                            <div class="bg-white p-4 rounded border">
+                                {{ recurso.contenido|linebreaks }}
                             </div>
                         </div>
+                    {% else %}
+                        <div class="alert alert-info text-center p-4">
+                            <i class="fas fa-info-circle fa-2x mb-3"></i>
+                            <p>Este artículo no tiene contenido adicional. {% if '.pdf' in recurso.enlace.lower %}Utiliza el botón para descargar el PDF completo.{% else %}Utiliza el enlace externo para leer el artículo completo.{% endif %}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 
                     {% else %}
                         <!-- SECCIÓN PARA TEXTO/IMAGEN (por defecto) -->
@@ -257,10 +377,19 @@
 <style>
     #player {
         width: 100%;
-        height: 400px;
+        height: 300px;
         border-radius: 12px;
     }
     
+    .youtube-player-container {
+        height: 300px;
+        margin-bottom: 25.5px;
+    }
+    
+    .video-container video {
+        height: 300px !important;
+    }
+
     .sticky-top {
         position: sticky;
         z-index: 10;
@@ -270,9 +399,74 @@
         #player {
             height: 300px;
         }
+
+        .youtube-player-container {
+            height: 300px;
+        }
+        
+        .video-container video {
+            height: 300px !important;
+        }
         
         .sticky-top {
             position: static;
+        }
+    }
+
+    .enlace-externo-container {
+        margin-bottom: 20px;
+    }
+
+    .recurso-info {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+    }
+    
+    .pdf-viewer-container {
+        position: relative;
+    }
+    
+    .pdf-viewer-container iframe {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+    }
+
+   @media (max-width: 768px) {
+        .pdf-viewer-container iframe {
+            height: 400px;
+        }
+        
+        .recurso-info {
+            padding: 15px;
+        }
+    }
+    
+    .pdf-info {
+        border-left: 4px solid #dc3545;
+    }
+    
+    .vista-previa-contenido {
+        line-height: 1.6;
+    }
+        .pdf-preview-articulo {
+        margin-bottom: 15px;
+    }
+    
+    .pdf-viewer-container-articulo {
+        position: relative;
+    }
+    
+    .pdf-viewer-container-articulo iframe {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background: white;
+    }
+    
+    @media (max-width: 768px) {
+        .pdf-viewer-container-articulo iframe {
+            height: 300px;
         }
     }
 </style>
