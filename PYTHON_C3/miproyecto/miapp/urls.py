@@ -56,8 +56,9 @@ urlpatterns = [
     path('mi-contenido/', views.ver_contenido_personalizado, name='ver_contenido_personalizado'),
 
     # ===================== VER COMO USUARIO =====================
-    path('ver-como-usuario/', views.ver_como_usuario, name='ver_como_usuario'),
-    path('volver-a-pasante/', views.volver_a_pasante, name='volver_a_pasante'), 
+  # En tu urls.py - verifica que tengas estas URLs:
+path('ver-como-usuario/', views.ver_como_usuario, name='ver_como_usuario'),
+path('volver-a-pasante/', views.volver_a_pasante, name='volver_a_pasante'),
 
     # Gestión de herramientas
     path('admin/gestionar-herramientas/', views.gestionar_herramientas, name='admin_gestionar_herramientas'),

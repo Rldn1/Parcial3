@@ -954,10 +954,11 @@ def ver_contenido_personalizado(request):
 
 
 # ==================== VISTAS PARA "VER COMO USUARIO" ====================
+# ==================== VISTAS PARA "VER COMO USUARIO" ====================
 
+@login_required
 def ver_como_usuario(request):
     """Vista para que los pasantes vean el sitio como usuarios normales"""
-    print("🔍 DEBUG: Activando modo 'Ver como Usuario'")
     
     # Verificar que sea pasante o admin
     if not hasattr(request.user, 'userprofile') or (
@@ -969,24 +970,26 @@ def ver_como_usuario(request):
     # Guardar en sesión que está en modo "ver como usuario"
     request.session['viewing_as_user'] = True
     request.session['original_user_type'] = request.user.userprofile.tipo_usuario
-    print(f"🔍 DEBUG: Usuario {request.user.username} entrando en modo usuario")
     
+    # Redirigir al index
     return redirect('miapp:index')
 
+@login_required
 def volver_a_pasante(request):
     """Volver al modo pasante"""
-    print("🔍 DEBUG: Volviendo al modo pasante")
     
+    # Verificar que estaba en modo usuario
+    if not request.session.get('viewing_as_user'):
+        return redirect('miapp:pasante_dashboard')
+    
+    # Eliminar la sesión de modo usuario
     if 'viewing_as_user' in request.session:
         del request.session['viewing_as_user']
     if 'original_user_type' in request.session:
         del request.session['original_user_type']
     
-    print(f"🔍 DEBUG: Usuario {request.user.username} volviendo a modo pasante")
-    return redirect('miapp:pasante_dashboard')
-
-
-# Kit de herramienta 
+    # Redirigir al dashboard de pasante
+    return redirect('miapp:pasante_dashboard')# Kit de herramienta 
 @login_required
 def recursos(request):
     """Vista para los recursos - Versión mejorada"""
