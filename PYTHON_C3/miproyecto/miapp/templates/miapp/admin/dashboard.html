@@ -26,6 +26,7 @@
         background: white;
         box-shadow: 0 6px 20px rgba(0,0,0,0.08);
         text-align: center;
+        height: 100%; /* Para que todas tengan la misma altura visual */
     }
 
     .stat-card i {
@@ -89,12 +90,10 @@
     .btn-blue { background: linear-gradient(90deg,#0C77FF,#3E9BFF); }
     .btn-purple { background: linear-gradient(90deg,#800091,#950da7ce); }
 
-
 </style>
 
 <div class="container">
 
-    <!-- TÍTULO -->
     <h1 class="text-center mt-3" style="font-size:2.6rem; font-weight:700; color:#0367FF;">
         Dashboard Administrador
     </h1>
@@ -102,8 +101,8 @@
         Gestión del sistema, consultas y recursos generales de SoulComfort
     </p>
 
-    <!-- ESTADÍSTICAS -->
-    <div class="row mb-5 text-center">
+    <div class="row mb-5 text-center justify-content-center">
+        
         <div class="col-md-3 mb-4">
             <div class="stat-card">
                 <i class="fas fa-users" style="color:#1E63F0;"></i>
@@ -119,6 +118,15 @@
                 <div class="stat-title">Total Recursos</div>
                 <div class="stat-number">{{ stats.total_recursos }}</div>
                 <div class="stat-desc">Recursos creados</div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="stat-card">
+                <i class="fas fa-toolbox" style="color:#800091;"></i>
+                <div class="stat-title">Total Herramientas</div>
+                <div class="stat-number">{{ stats.total_herramientas }}</div>
+                <div class="stat-desc">Archivos en el Kit</div>
             </div>
         </div>
 
@@ -141,7 +149,6 @@
         </div>
     </div>
 
-    <!-- SECCIÓN DE ACCIONES -->
     <div class="section-title section-blue">
         <i class="fas fa-rocket me-2"></i> Acciones Rápidas
     </div>
@@ -165,12 +172,12 @@
                 <i class="fas fa-envelope"></i> Ver Consultas
             </a>
         </div>
+        
         <div class="col-md-4 mb-3">
             <a href="{% url 'miapp:admin_gestionar_herramientas' %}" class="action-btn btn-green">     
-                 <i class="fas fa-envelope"></i> Gestionar Herramientas
+                 <i class="fas fa-toolbox"></i> Gestionar Herramientas
             </a>
         </div>
-
 
     </div>
 

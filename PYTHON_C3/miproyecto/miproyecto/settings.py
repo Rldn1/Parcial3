@@ -79,7 +79,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'soulcomfort_db',          # Nombre de tu base de datos
         'USER': 'postgres',                # Tu usuario de PostgreSQL
-        'PASSWORD': '1234',         # ⚠️ PON TU CONTRASEÑA AQUÍ
+        'PASSWORD': '12345',         # ⚠️ PON TU CONTRASEÑA AQUÍ
         'HOST': 'localhost',               # Normalmente es localhost
         'PORT': '5432',                    # Puerto de PostgreSQL
     }

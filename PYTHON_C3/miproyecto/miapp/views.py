@@ -205,10 +205,12 @@ def admin_dashboard(request):
             'total_recursos': Recurso.objects.count(),
             'total_consultas': FormularioContacto.objects.count(),
             'consultas_sin_responder': FormularioContacto.objects.filter(respondido=False).count(),
+            
+            
+            'total_herramientas': RecursosKit.objects.count(), 
         }
     }
     return render(request, 'miapp/admin/dashboard.html', context)
-
 @login_required
 def pasante_dashboard(request):
     if not hasattr(request.user, 'userprofile') or not request.user.userprofile.es_pasante():
