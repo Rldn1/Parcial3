@@ -613,7 +613,11 @@
                         </a>
                     </li>
 
- 
+                    <!-- ==== SOLO PARA NO PASANTES ==== -->
+                    {% if not user.is_authenticated or user.userprofile.tipo_usuario != 'pasante' %}
+                    
+                
+
                     <!-- MI CONTENIDO - Solo para pacientes -->
                     {% if user.is_authenticated and user.userprofile.tipo_usuario == 'paciente' %}
                     <li class="nav-item">
@@ -633,16 +637,7 @@
                     </li>
                     {% endif %}
                     
-                    <!-- DASHBOARD PASANTE - Solo para pasante -->
-                    {% if user.is_authenticated and user.userprofile.tipo_usuario == 'pasante' %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'pasante/dashboard' in request.path %}active{% endif %}" href="{% url 'miapp:pasante_dashboard' %}">
-                            <i class="fas fa-user-graduate me-2"></i>Dashboard
-                        </a>
-                    </li>
-                    {% endif %}
-                    
-                    <!-- RECURSOS MULTIMEDIA - Para todos los autenticados -->
+                    <!-- RECURSOS MULTIMEDIA - Para autenticados excepto pasantes -->
                     {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.url_name == 'recursos_multimedia' %}active{% endif %}" href="{% url 'miapp:recursos_multimedia' %}">
@@ -651,7 +646,7 @@
                     </li>
                     {% endif %}
                     
-                    <!-- KIT DE HERRAMIENTAS - Para todos los autenticados -->
+                    <!-- KIT DE HERRAMIENTAS - Para autenticados excepto pasantes -->
                     {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.url_name == 'recursos' %}active{% endif %}" href="{% url 'miapp:recursos' %}">
@@ -660,7 +655,7 @@
                     </li>
                     {% endif %}
                     
-                    <!-- CONTACTO - Para todos los autenticados -->
+                    <!-- CONTACTO - Para autenticados excepto pasantes -->
                     {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.url_name == 'formulario_contacto' %}active{% endif %}" href="{% url 'miapp:formulario_contacto' %}">
@@ -669,13 +664,24 @@
                     </li>
                     {% endif %}
 
-
-                    
-                    <!-- ACERCA DE - Para todos -->
-                     <li class="nav-item">
-                        <a class="nav-link" href="/acerca-de/"><i class="fas fa-info-circle me-2"></i>Acerca de
+                     <!-- ACERCA DE - Para todos excepto pasantes -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/acerca-de/">
+                            <i class="fas fa-info-circle me-2"></i>Acerca de
                         </a>
                     </li>
+                    
+                    {% endif %}
+                    <!-- ==== FIN DE NO PASANTES ==== -->
+                    
+                    <!-- DASHBOARD PASANTE - Solo para pasante (SIEMPRE visible para pasantes) -->
+                    {% if user.is_authenticated and user.userprofile.tipo_usuario == 'pasante' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'pasante/dashboard' in request.path %}active{% endif %}" href="{% url 'miapp:pasante_dashboard' %}">
+                            <i class="fas fa-user-graduate me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    {% endif %}
                 </ul>
                 
                 <!-- Dropdown de Perfil - Solo para usuarios autenticados -->
