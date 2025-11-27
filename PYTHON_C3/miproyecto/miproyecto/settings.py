@@ -79,7 +79,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'soulcomfort_db',          # Nombre de tu base de datos
         'USER': 'postgres',                # Tu usuario de PostgreSQL
-        'PASSWORD': '12345',         # ⚠️ PON TU CONTRASEÑA AQUÍ
+        'PASSWORD': '1234',         # ⚠️ PON TU CONTRASEÑA AQUÍ
         'HOST': 'localhost',               # Normalmente es localhost
         'PORT': '5432',                    # Puerto de PostgreSQL
     }
@@ -121,6 +121,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

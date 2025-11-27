@@ -8,19 +8,23 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #6C63FF 0%, #8A82FF 100%);
+          
+            background: 
+                linear-gradient(135deg, rgba(108, 99, 255, 0.85) 0%, rgba(138, 130, 255, 0.85) 100%),
+                url('/static/images/fondo.jpg') center/cover fixed no-repeat;
             min-height: 100vh;
             display: flex;
             align-items: center;
             font-family: 'Nunito', sans-serif;
         }
-        .login-container {
-            background: white;
+        .login-container { 
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 12px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
             overflow: hidden;
             max-width: 400px;
             margin: 0 auto;
+            backdrop-filter: blur(10px);
         }
         .login-header {
             background: linear-gradient(135deg, #6C63FF 0%, #8A82FF 100%);
@@ -66,8 +70,6 @@
 
                     <!-- Formulario Compacto -->
                     <div class="p-4">
-                        <!-- QUITÉ LOS MENSAJES PARA EVITAR QUE SE MUESTREN DESPUÉS DEL LOGOUT -->
-                        
                         <form method="post" action="{% url 'miapp:login' %}">
                             {% csrf_token %}
                             
