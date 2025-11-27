@@ -3,201 +3,325 @@
 {% block title %}Gestión de Recursos - Pasante{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mb-4">
-                <i class="fas fa-book me-2"></i>Gestión de Recursos
-            </h1>
-            <p class="text-muted">Como pasante, puedes crear y gestionar recursos para los usuarios.</p>
+
+<style>
+    /* === ESTILOS DASHBOARD MODERNO === */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        margin-top: 20px;
+    }
+
+    .card-modern {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        background: white;
+        overflow: hidden;
+    }
+
+    /* Tabla */
+    .table-modern thead th {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 16px;
+        border-bottom: 1px solid #edf2f9;
+    }
+    
+    .table-modern tbody td {
+        padding: 16px;
+        vertical-align: middle;
+        color: #495057;
+        border-bottom: 1px solid #f1f4f8;
+        font-size: 0.9rem;
+    }
+
+    /* Iconos de recursos */
+    .resource-icon-box {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    .type-video { background-color: #ffeaa7; color: #d35400; }
+    .type-articulo { background-color: #74b9ff; color: #0984e3; }
+    .type-imagen { background-color: #a29bfe; color: #6c5ce7; }
+    .type-ejercicio { background-color: #55efc4; color: #00b894; }
+    .type-default { background-color: #dfe6e9; color: #636e72; }
+
+    /* Badges */
+    .badge-soft {
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+    .badge-soft-success { background-color: #d1e7dd; color: #0f5132; }
+    .badge-soft-secondary { background-color: #e2e3e5; color: #41464b; }
+
+    /* Botones */
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.2s;
+        border: none;
+        background: transparent;
+    }
+    .btn-icon:hover { background-color: #f1f2f6; transform: translateY(-2px); }
+    .btn-icon.edit { color: #0984e3; }
+    .btn-icon.delete { color: #d63031; }
+
+    .btn-create {
+        background: #0A8D47;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        border: none;
+        box-shadow: 0 4px 15px rgba(10, 141, 71, 0.3);
+        transition: .2s;
+    }
+    .btn-create:hover {
+        background: #087038;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .resource-thumb {
+        width: 42px;
+        height: 42px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-right: 15px;
+    }
+
+    /* CLASE AYUDA PARA INPUTS ALINEADOS */
+    .input-mimic-box {
+        display: flex;
+        align-items: center;
+        height: 38px; /* Altura estándar de inputs Bootstrap */
+        border: 1px solid #ced4da; /* Borde estándar */
+        border-radius: 0.25rem;
+        background-color: #f8f9fa; /* bg-light */
+        padding: 0 10px;
+    }
+</style>
+
+<div class="container-fluid px-4">
+
+    <div class="page-header">
+        <div>
+            <h2 style="font-weight: 700; color: #2d3436; margin: 0;">Gestión de Recursos</h2>
+            <p class="text-muted mb-0">Crea y gestiona recursos educativos</p>
+        </div>
+        <div>
+            <button type="button" class="btn-create" data-bs-toggle="modal" data-bs-target="#modalCrearRecurso">
+                <i class="fas fa-plus me-2"></i>Nuevo Recurso
+            </button>
         </div>
     </div>
 
-    <!-- Formulario para crear recurso -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Crear Nuevo Recurso</h5>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Título *</label>
-                                    <input type="text" name="titulo" class="form-control" placeholder="Título del recurso" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Tipo de Recurso *</label>
-                                    <select name="tipo_recurso" class="form-control" required>
-                                        <option value="video">Video</option>
-                                        <option value="articulo">Artículo</option>
-                                        <option value="texto_imagen">Texto con Imágenes</option>
-                                        <option value="ejercicio">Ejercicio Práctico</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Categoría *</label>
-                                    <select name="categoria" class="form-control" required>
-                                        {% for categoria in categorias %}
-                                        <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Descripción *</label>
-                                    <textarea name="descripcion" class="form-control" rows="3" placeholder="Descripción del recurso" required></textarea>
-                                </div>
-                                <div class="mb-3 form-check form-switch">
-                                    <input type="checkbox" name="es_publico" class="form-check-input" checked>
-                                    <label class="form-check-label">Recurso público</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Contenido</label>
-                            <textarea name="contenido" class="form-control" rows="5" placeholder="Contenido completo del recurso..."></textarea>
-                        </div>
-                        <button type="submit" name="crear_recurso" class="btn btn-success">
-                            <i class="fas fa-save me-2"></i>Crear Recurso
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recursos creados por el pasante -->
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">
-                <i class="fas fa-list me-2"></i>
-                Mis Recursos Creados
-            </h5>
-        </div>
-        <div class="card-body">
+    <div class="card card-modern">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-striped table-hover">
+                <table class="table table-modern mb-0">
                     <thead>
                         <tr>
-                            <th>Título</th>
+                            <th width="35%">Recurso</th>
                             <th>Tipo</th>
                             <th>Categoría</th>
-                            <th>Fecha</th>
+                            <th>Creado por</th>
                             <th>Estado</th>
-                            <th>Acciones</th>
+                            <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for recurso in recursos %}
-                        {% if recurso.creado_por == request.user %}
                         <tr>
                             <td>
-                                <strong>{{ recurso.titulo }}</strong>
-                                <br><small class="text-muted">{{ recurso.descripcion|truncatewords:8 }}</small>
+                                <div class="d-flex align-items-center">
+                                    {% if recurso.imagen_portada %}
+                                        <img src="{{ recurso.imagen_portada.url }}" class="resource-thumb shadow-sm" alt="portada">
+                                    {% else %}
+                                        <div class="resource-icon-box 
+                                            {% if recurso.tipo_recurso == 'video' %}type-video
+                                            {% elif recurso.tipo_recurso == 'articulo' %}type-articulo
+                                            {% elif recurso.tipo_recurso == 'texto_imagen' %}type-imagen
+                                            {% elif recurso.tipo_recurso == 'ejercicio' %}type-ejercicio
+                                            {% else %}type-default{% endif %}">
+                                            
+                                            {% if recurso.tipo_recurso == 'video' %}<i class="fas fa-video"></i>
+                                            {% elif recurso.tipo_recurso == 'articulo' %}<i class="fas fa-file-alt"></i>
+                                            {% elif recurso.tipo_recurso == 'texto_imagen' %}<i class="fas fa-image"></i>
+                                            {% elif recurso.tipo_recurso == 'ejercicio' %}<i class="fas fa-dumbbell"></i>
+                                            {% else %}<i class="fas fa-file"></i>{% endif %}
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 0.95rem; color: #2d3436;">{{ recurso.titulo }}</div>
+                                        <div class="text-muted small text-truncate" style="max-width: 250px;">
+                                            {{ recurso.descripcion|truncatechars:40 }}
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
+
                             <td>
-                                <span class="badge bg-info">
+                                <span class="badge text-uppercase" style="background-color: #f1f2f6; color: #636e72; font-size: 0.7rem;">
                                     {{ recurso.get_tipo_recurso_display }}
                                 </span>
                             </td>
+
                             <td>
-                                <span class="badge" style="background-color: {{ recurso.categoria.color }};">
-                                    {{ recurso.categoria.nombre }}
-                                </span>
-                            </td>
-                            <td>{{ recurso.creado_en|date:"d/m/Y" }}</td>
-                            <td>
-                                <span class="badge bg-{% if recurso.es_publico %}success{% else %}secondary{% endif %}">
-                                    {{ recurso.es_publico|yesno:"Público,Privado" }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalRecurso{{ recurso.id }}">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <form method="post" style="display: inline;">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="recurso_id" value="{{ recurso.id }}">
-                                        <button type="submit" name="eliminar_recurso" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Estás seguro de eliminar este recurso?')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                <div class="d-flex align-items-center">
+                                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: {{ recurso.categoria.color }}; margin-right: 8px; display: inline-block;"></span>
+                                    <span>{{ recurso.categoria.nombre }}</span>
                                 </div>
+                            </td>
+
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span style="font-weight: 500;">{{ recurso.creado_por.username }}</span>
+                                    <span class="text-muted small" style="font-size: 0.75rem;">{{ recurso.creado_en|date:"d M Y" }}</span>
+                                </div>
+                            </td>
+
+                            <td>
+                                {% if recurso.es_publico %}
+                                    <span class="badge badge-soft-success"><i class="fas fa-check-circle me-1"></i> Público</span>
+                                {% else %}
+                                    <span class="badge badge-soft-secondary"><i class="fas fa-lock me-1"></i> Privado</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-end">
+                                <button type="button" class="btn btn-icon edit" data-bs-toggle="modal" data-bs-target="#modalRecurso{{ recurso.id }}" title="Editar">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button type="button" class="btn btn-icon delete" data-bs-toggle="modal" data-bs-target="#modalEliminarRecurso{{ recurso.id }}" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </td>
                         </tr>
 
-                        <!-- Modal Editar Recurso -->
                         <div class="modal fade" id="modalRecurso{{ recurso.id }}" tabindex="-1">
                             <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Editar Recurso: {{ recurso.titulo }}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                <div class="modal-content border-0 shadow">
+                                    <div class="modal-header border-0 pb-0">
+                                        <h5 class="modal-title fw-bold">Editar Recurso</h5>
+                                        <button class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
-                                    <form method="post">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="recurso_id" value="{{ recurso.id }}">
-                                        <div class="modal-body">
-                                            <div class="row">
+                                    <div class="modal-body">
+                                        <form method="post" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="editar_recurso" value="1">
+                                            <input type="hidden" name="recurso_id" value="{{ recurso.id }}">
+
+                                            <div class="row g-3">
+                                                <div class="col-md-8">
+                                                    <label class="form-label small fw-bold text-muted">TÍTULO</label>
+                                                    <input type="text" name="titulo" value="{{ recurso.titulo }}" class="form-control bg-light" required>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label small fw-bold text-muted">TIPO</label>
+                                                    <select name="tipo_recurso" class="form-select bg-light">
+                                                        <option value="video" {% if recurso.tipo_recurso == 'video' %}selected{% endif %}>Video</option>
+                                                        <option value="articulo" {% if recurso.tipo_recurso == 'articulo' %}selected{% endif %}>Artículo</option>
+                                                        <option value="texto_imagen" {% if recurso.tipo_recurso == 'texto_imagen' %}selected{% endif %}>Texto e Imagen</option>
+                                                        <option value="ejercicio" {% if recurso.tipo_recurso == 'ejercicio' %}selected{% endif %}>Ejercicio</option>
+                                                    </select>
+                                                </div>
+
                                                 <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Título</label>
-                                                        <input type="text" name="titulo" class="form-control" value="{{ recurso.titulo }}" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Tipo de Recurso</label>
-                                                        <select name="tipo_recurso" class="form-select" required>
-                                                            <option value="video" {% if recurso.tipo_recurso == 'video' %}selected{% endif %}>Video</option>
-                                                            <option value="articulo" {% if recurso.tipo_recurso == 'articulo' %}selected{% endif %}>Artículo</option>
-                                                            <option value="texto_imagen" {% if recurso.tipo_recurso == 'texto_imagen' %}selected{% endif %}>Texto con Imágenes</option>
-                                                            <option value="ejercicio" {% if recurso.tipo_recurso == 'ejercicio' %}selected{% endif %}>Ejercicio Práctico</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Categoría</label>
-                                                        <select name="categoria" class="form-select" required>
-                                                            {% for categoria in categorias %}
-                                                            <option value="{{ categoria.id }}" {% if recurso.categoria.id == categoria.id %}selected{% endif %}>{{ categoria.nombre }}</option>
-                                                            {% endfor %}
-                                                        </select>
-                                                    </div>
+                                                    <label class="form-label small fw-bold text-muted">CATEGORÍA</label>
+                                                    <select name="categoria" class="form-select bg-light">
+                                                        {% for cat in categorias %}
+                                                            <option value="{{ cat.id }}" {% if recurso.categoria.id == cat.id %}selected{% endif %}>{{ cat.nombre }}</option>
+                                                        {% endfor %}
+                                                    </select>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Descripción</label>
-                                                        <textarea name="descripcion" class="form-control" rows="3" required>{{ recurso.descripcion }}</textarea>
-                                                    </div>
-                                                    <div class="mb-3 form-check form-switch">
-                                                        <input type="checkbox" name="es_publico" class="form-check-input" {% if recurso.es_publico %}checked{% endif %}>
-                                                        <label class="form-check-label">Recurso público</label>
+                                                    <label class="form-label small fw-bold text-muted">VISIBILIDAD</label>
+                                                    <div class="input-mimic-box">
+                                                        <div class="form-check form-switch mb-0">
+                                                            <input type="checkbox" name="es_publico" class="form-check-input" id="switchEdit{{recurso.id}}" {% if recurso.es_publico %}checked{% endif %}>
+                                                            <label class="form-check-label fw-bold small ms-2" for="switchEdit{{recurso.id}}">Recurso Público</label>
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                <div class="col-12">
+                                                    <label class="form-label small fw-bold text-muted">DESCRIPCIÓN CORTA</label>
+                                                    <textarea name="descripcion" class="form-control bg-light" rows="2">{{ recurso.descripcion }}</textarea>
+                                                </div>
+                                                
+                                                <div class="col-12">
+                                                    <label class="form-label small fw-bold text-muted">CONTENIDO DETALLADO</label>
+                                                    <textarea name="contenido" class="form-control bg-light" rows="4">{{ recurso.contenido }}</textarea>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <label class="form-label small fw-bold text-muted">ENLACE EXTERNO (Opcional)</label>
+                                                    <input type="url" name="enlace" value="{{ recurso.enlace|default:'' }}" class="form-control bg-light">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label small fw-bold text-muted">CAMBIAR PORTADA</label>
+                                                    <input type="file" name="imagen_portada" class="form-control bg-light">
+                                                </div>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Contenido</label>
-                                                <textarea name="contenido" class="form-control" rows="5">{{ recurso.contenido }}</textarea>
+
+                                            <div class="text-end mt-4">
+                                                <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-primary px-4 fw-bold">Guardar Cambios</button>
                                             </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                            <button type="submit" name="editar_recurso" class="btn btn-primary">Guardar Cambios</button>
-                                        </div>
-                                    </form>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        {% endif %}
+
+                        <div class="modal fade" id="modalEliminarRecurso{{ recurso.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered modal-sm">
+                                <div class="modal-content border-0 shadow text-center">
+                                    <div class="modal-body p-4">
+                                        <div class="mb-3 text-danger"><i class="fas fa-trash-alt fa-3x"></i></div>
+                                        <h6 class="fw-bold mb-3">¿Eliminar este recurso?</h6>
+                                        <p class="small text-muted mb-4">{{ recurso.titulo }}</p>
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="recurso_id" value="{{ recurso.id }}">
+                                            <div class="d-grid gap-2">
+                                                <button type="submit" name="eliminar_recurso" class="btn btn-danger fw-bold">Sí, eliminar</button>
+                                                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center py-4">
-                                <i class="fas fa-folder-open fa-2x text-muted mb-3"></i>
-                                <p>No has creado recursos aún</p>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted opacity-50">
+                                    <i class="fas fa-folder-open fa-3x mb-3"></i>
+                                    <p class="fw-bold">No hay recursos creados aún</p>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -205,6 +329,87 @@
                 </table>
             </div>
         </div>
+        <div class="card-footer bg-white border-top-0 py-3">
+            <small class="text-muted">Total de recursos: <strong>{{ recursos.count }}</strong></small>
+        </div>
     </div>
 </div>
+
+<div class="modal fade" id="modalCrearRecurso" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-success text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="fas fa-magic me-2"></i>Crear Nuevo Recurso</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="crear_recurso" value="1">
+
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold text-success">TÍTULO DEL RECURSO *</label>
+                            <input type="text" name="titulo" class="form-control bg-light" placeholder="Ej: Técnicas de relajación" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-success">TIPO *</label>
+                            <select name="tipo_recurso" class="form-select bg-light" required>
+                                <option value="video">Video</option>
+                                <option value="articulo">Artículo</option>
+                                <option value="texto_imagen">Texto e Imagen</option>
+                                <option value="ejercicio">Ejercicio Práctico</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-success">CATEGORÍA *</label>
+                            <select name="categoria" class="form-select bg-light" required>
+                                {% for categoria in categorias %}
+                                    <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-success">ESTADO</label>
+                            <div class="input-mimic-box">
+                                <div class="form-check form-switch mb-0">
+                                    <input type="checkbox" name="es_publico" class="form-check-input" id="checkPublicoNew" checked>
+                                    <label class="form-check-label fw-bold small ms-2" for="checkPublicoNew">Público inmediatamente</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-4">
+                            <label class="form-label small fw-bold text-muted">DESCRIPCIÓN CORTA *</label>
+                            <textarea name="descripcion" class="form-control bg-light" rows="2" placeholder="Resumen breve que aparecerá en las tarjetas..." required></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">CONTENIDO DETALLADO</label>
+                            <textarea name="contenido" class="form-control bg-light" rows="5" placeholder="Escribe aquí el cuerpo del artículo o instrucciones..."></textarea>
+                        </div>
+
+                        <div class="col-12"><hr class="text-muted"></div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted"><i class="fas fa-link me-1"></i> ENLACE (YouTube/Externo)</label>
+                            <input type="url" name="enlace" class="form-control bg-light" placeholder="https://...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted"><i class="fas fa-image me-1"></i> IMAGEN DE PORTADA</label>
+                            <input type="file" name="imagen_portada" class="form-control bg-light">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4 pt-2">
+                        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success px-4 fw-bold">
+                            <i class="fas fa-save me-2"></i>Publicar Recurso
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
