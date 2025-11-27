@@ -646,14 +646,6 @@
                     </li>
                     {% endif %}
                     
-                    <!-- KIT DE HERRAMIENTAS - Para autenticados excepto pasantes -->
-                    {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'recursos' %}active{% endif %}" href="{% url 'miapp:recursos' %}">
-                            <i class="fas fa-toolbox me-2"></i>Herramientas
-                        </a>
-                    </li>
-                    {% endif %}
                     
                     <!-- CONTACTO - Para autenticados excepto pasantes -->
                     {% if user.is_authenticated %}

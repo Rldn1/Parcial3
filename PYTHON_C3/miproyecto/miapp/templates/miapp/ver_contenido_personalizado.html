@@ -23,10 +23,10 @@
                                 <h5 class="card-title">Filtrar por tipo:</h5>
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-outline-primary active" data-filter="all">Todos</button>
-                                    <button type="button" class="btn btn-outline-primary" data-filter="video">🎬 Videos</button>
-                                    <button type="button" class="btn btn-outline-primary" data-filter="infografia">📊 Infografías</button>
-                                    <button type="button" class="btn btn-outline-primary" data-filter="articulo">📄 Artículos</button>
-                                    <button type="button" class="btn btn-outline-primary" data-filter="ejercicio">💪 Ejercicios</button>
+                                    <button type="button" class="btn btn-outline-primary" data-filter="video">Videos</button>
+                                    <button type="button" class="btn btn-outline-primary" data-filter="infografia">Infografías</button>
+                                    <button type="button" class="btn btn-outline-primary" data-filter="articulo">Artículos</button>
+                                    <button type="button" class="btn btn-outline-primary" data-filter="ejercicio">Ejercicios</button>
                                 </div>
                             </div>
                         </div>
@@ -46,7 +46,7 @@
                         <div class="col-lg-6 mb-4">
                             <div class="card h-100 content-card">
                                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0">{{ item.get_tipo_icono }} {{ item.titulo }}</h5>
+                                    <h5 class="mb-0">{{ item.titulo }}</h5>
                                     <small class="text-muted">{{ item.fecha_creacion|date:"d/m/Y" }}</small>
                                 </div>
                                 <div class="card-body">
@@ -65,7 +65,7 @@
                                            class="btn btn-outline-primary btn-sm me-2 mb-2" 
                                            target="_blank" 
                                            download>
-                                            📥 Descargar Archivo
+                                            Descargar Archivo
                                         </a>
                                         {% endif %}
                                         
@@ -73,7 +73,7 @@
                                         <a href="{{ item.url }}" 
                                            class="btn btn-outline-success btn-sm me-2 mb-2" 
                                            target="_blank">
-                                            🌐 Ver Enlace
+                                            Ver Enlace
                                         </a>
                                         {% endif %}
                                     </div>

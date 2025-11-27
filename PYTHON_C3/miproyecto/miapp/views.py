@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from .models import RecursosKit, DescargaRecursoKit
 from django.http import JsonResponse, FileResponse, Http404
 from .models import (
-    UserProfile, Recurso, CategoriaRecurso, FormularioContacto, RespuestaConsulta,
+    UserProfile, Recurso, CategoriaRecurso, FormularioContacto, RespuestaConsulta, 
     CategoriaForo, HiloForo, RespuestaForo
 )
 from .forms import RecursoForm, UserForm, UserProfileForm
@@ -221,7 +221,7 @@ def pasante_dashboard(request):
         'user': request.user,
         'stats': {
             'total_recursos': Recurso.objects.count(),
-            'total_consultas': FormularioContacto.objects.count(),
+            'total_herramientas': RecursosKit.objects.count(),           'total_consultas': FormularioContacto.objects.count(),
             'consultas_sin_responder': FormularioContacto.objects.filter(respondido=False).count(),
         }
     }
