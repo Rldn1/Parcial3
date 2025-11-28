@@ -71,5 +71,11 @@ path('volver-a-pasante/', views.volver_a_pasante, name='volver_a_pasante'),
     path('recurso/<int:recurso_id>/', views.detalle_recurso, name='detalle_recurso'),
     # ACERCA DE
     path('acerca-de/', views.acerca_de, name='acerca_de'),
+
+    # Sistema de Citas
+    path('pasante/disponibilidad/', views.gestionar_disponibilidad_pasante, name='gestionar_disponibilidad_pasante'),
+    path('paciente/disponibilidad/', views.gestionar_disponibilidad_paciente, name='gestionar_disponibilidad_paciente'),
+    path('pasante/agendar-cita/', views.agendar_cita, name='agendar_cita'),
+    path('mis-citas/', views.ver_mis_citas, name='ver_mis_citas'),
 ]
 

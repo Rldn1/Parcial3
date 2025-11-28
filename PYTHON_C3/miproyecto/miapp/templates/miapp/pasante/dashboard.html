@@ -85,6 +85,62 @@
                 </div>
             </div>
 
+            <!-- Tarjeta de Gestión de Citas - ANCHO COMPLETO -->
+            <div class="col-12 mb-4">
+                <div class="card feature-card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-calendar-check me-2"></i>
+                            Gestión de Citas y Sesiones Virtuales
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <p class="mb-3">
+                                    Gestiona tu disponibilidad semanal y agenda citas con pacientes para sesiones de terapia virtual. 
+                                    El sistema encuentra horarios coincidentes entre tu disponibilidad y la de los pacientes.
+                                </p>
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>Disponibilidad Semanal</strong>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>Horarios Coincidentes</strong>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>Sesiones de 1 Hora</strong>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>Videollamada Segura</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="mb-3">
+                                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                        style="width: 100px; height: 100px;">
+                                        <i class="fas fa-video text-white fa-3x"></i>
+                                    </div>
+                                </div>
+                                <div class="btn-group-vertical w-100">
+                                    <a href="{% url 'miapp:gestionar_disponibilidad_pasante' %}" class="btn btn-primary mb-2">
+                                        <i class="fas fa-clock me-2"></i>Gestionar Disponibilidad
+                                    </a>
+                                    <a href="{% url 'miapp:agendar_cita' %}" class="btn btn-success">
+                                        <i class="fas fa-calendar-plus me-2"></i>Agendar Citas
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Acciones Rápidas - Sección 1 -->
             <div class="row mb-5">
                 <div class="col-12">

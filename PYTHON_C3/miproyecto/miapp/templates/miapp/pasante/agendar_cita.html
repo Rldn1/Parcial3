@@ -1,0 +1,257 @@
+{% extends 'miapp/base.html' %}
+
+{% block title %}Agendar Citas - SoulComfort{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-bold text-primary mb-3">
+                    <i class="fas fa-calendar-plus me-2"></i>Agendar Citas
+                </h1>
+                <p class="lead text-muted">Encuentra horarios coincidentes con pacientes y agenda sesiones</p>
+                <p class="text-info"><strong>Semana del {{ proxima_semana|date:"d/m/Y" }}</strong></p>
+            </div>
+
+            <!-- Mensajes -->
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Horarios Coincidentes -->
+            <div class="card feature-card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-users me-2"></i>Horarios Coincidentes Disponibles</h4>
+                </div>
+                <div class="card-body">
+                    {% if pacientes_coincidentes %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Paciente</th>
+                                    <th>Día</th>
+                                    <th>Hora</th>
+                                    <th>Fecha</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for coincidencia in pacientes_coincidentes %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ coincidencia.paciente.get_full_name|default:coincidencia.paciente.username }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ coincidencia.paciente.email }}</small>
+                                    </td>
+                                    <td>
+                                        <strong>{{ coincidencia.dia_semana|title }}</strong>
+                                    </td>
+                                    <td>
+                                        {{ coincidencia.hora_inicio|time:"H:i" }} - {{ coincidencia.hora_fin|time:"H:i" }}
+                                    </td>
+                                    <td>
+                                        {{ coincidencia.fecha_cita|date:"d/m/Y" }}
+                                    </td>
+                                    <td>
+                                        <form method="post" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="paciente_id" value="{{ coincidencia.paciente.id }}">
+                                            <input type="hidden" name="fecha_cita" value="{{ coincidencia.fecha_cita|date:'Y-m-d' }}">
+                                            <input type="hidden" name="hora_inicio" value="{{ coincidencia.hora_inicio|time:'H:i:s' }}">
+                                            <input type="hidden" name="dia_semana" value="{{ coincidencia.dia_semana }}">
+                                            
+                                            <div class="modal fade" id="modalAgendar{{ forloop.counter }}" tabindex="-1">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header bg-primary text-white">
+                                                            <h5 class="modal-title">Confirmar Cita</h5>
+                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>
+                                                                <strong>Paciente:</strong> {{ coincidencia.paciente.get_full_name|default:coincidencia.paciente.username }}<br>
+                                                                <strong>Fecha:</strong> {{ coincidencia.fecha_cita|date:"d/m/Y" }}<br>
+                                                                <strong>Hora:</strong> {{ coincidencia.hora_inicio|time:"H:i" }} - {{ coincidencia.hora_fin|time:"H:i" }}
+                                                            </p>
+                                                            
+                                                            <div class="mb-3">
+                                                                <label class="form-label"><strong>Modalidad de la sesión:</strong></label>
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="radio" name="modalidad" id="virtual{{ forloop.counter }}" value="virtual" checked>
+                                                                    <label class="form-check-label" for="virtual{{ forloop.counter }}">
+                                                                        <i class="fas fa-video text-primary me-1"></i> Virtual (Google Meet)
+                                                                    </label>
+                                                                </div>
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="radio" name="modalidad" id="presencial{{ forloop.counter }}" value="presencial">
+                                                                    <label class="form-check-label" for="presencial{{ forloop.counter }}">
+                                                                        <i class="fas fa-building text-success me-1"></i> Presencial
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div class="mb-3" id="ubicacionContainer{{ forloop.counter }}" style="display: none;">
+                                                                <label for="ubicacion{{ forloop.counter }}" class="form-label">Ubicación presencial:</label>
+                                                                <input type="text" class="form-control" id="ubicacion{{ forloop.counter }}" 
+                                                                    name="ubicacion_presencial" placeholder="Ej: Sede Central SoulComfort, San Miguel">
+                                                                <div class="form-text">Dirección donde se realizará la sesión presencial</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                            <button type="submit" class="btn btn-success">
+                                                                <i class="fas fa-calendar-check me-1"></i>Confirmar Cita
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalAgendar{{ forloop.counter }}">
+                                                <i class="fas fa-check me-1"></i>Agendar
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No hay horarios coincidentes disponibles</h5>
+                        <p class="text-muted mb-3">
+                            No se encontraron horarios en común entre tu disponibilidad y la de los pacientes.
+                        </p>
+                        <div class="row justify-content-center">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="text-primary">¿Qué puedes hacer?</h6>
+                                        <ul class="text-start small">
+                                            <li>Verifica que tengas horarios disponibles registrados</li>
+                                            <li>Los pacientes deben tener horarios en los mismos días/horas</li>
+                                            <li>Las citas se agendan solo para la próxima semana</li>
+                                        </ul>
+                                        <a href="{% url 'miapp:gestionar_disponibilidad_pasante' %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-clock me-2"></i>Gestionar Mi Disponibilidad
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Información del proceso -->
+            <div class="row mt-4">
+                <div class="col-md-8 mx-auto">
+                    <div class="card feature-card">
+                        <div class="card-body">
+                            <h5 class="text-primary text-center mb-4">
+                                <i class="fas fa-info-circle me-2"></i>¿Cómo funciona el agendamiento?
+                            </h5>
+                            <div class="row text-center">
+                                <div class="col-md-4 mb-3">
+                                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                         style="width: 70px; height: 70px;">
+                                        <i class="fas fa-sync-alt text-white fa-2x"></i>
+                                    </div>
+                                    <h6>Coincidencias Automáticas</h6>
+                                    <p class="small">El sistema encuentra horarios en común entre tu disponibilidad y la de los pacientes</p>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                         style="width: 70px; height: 70px;">
+                                        <i class="fas fa-calendar-check text-white fa-2x"></i>
+                                    </div>
+                                    <h6>Confirmación Instantánea</h6>
+                                    <p class="small">Al agendar, ambas disponibilidades se marcan como ocupadas automáticamente</p>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                         style="width: 70px; height: 70px;">
+                                        <i class="fas fa-video text-white fa-2x"></i>
+                                    </div>
+                                    <h6>Dos Modalidades</h6>
+                                    <p class="small">Puedes elegir entre sesión virtual (Google Meet) o presencial</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Mostrar/ocultar campo de ubicación según modalidad
+    document.addEventListener('DOMContentLoaded', function() {
+        // Para cada modal
+        {% for coincidencia in pacientes_coincidentes %}
+        const virtualRadio{{ forloop.counter }} = document.getElementById('virtual{{ forloop.counter }}');
+        const presencialRadio{{ forloop.counter }} = document.getElementById('presencial{{ forloop.counter }}');
+        const ubicacionContainer{{ forloop.counter }} = document.getElementById('ubicacionContainer{{ forloop.counter }}');
+        const ubicacionInput{{ forloop.counter }} = document.getElementById('ubicacion{{ forloop.counter }}');
+        
+        if (virtualRadio{{ forloop.counter }} && presencialRadio{{ forloop.counter }} && ubicacionContainer{{ forloop.counter }}) {
+            // Evento para virtual
+            virtualRadio{{ forloop.counter }}.addEventListener('change', function() {
+                ubicacionContainer{{ forloop.counter }}.style.display = 'none';
+                if (ubicacionInput{{ forloop.counter }}) {
+                    ubicacionInput{{ forloop.counter }}.value = '';
+                }
+            });
+            
+            // Evento para presencial
+            presencialRadio{{ forloop.counter }}.addEventListener('change', function() {
+                ubicacionContainer{{ forloop.counter }}.style.display = 'block';
+                if (ubicacionInput{{ forloop.counter }} && !ubicacionInput{{ forloop.counter }}.value) {
+                    ubicacionInput{{ forloop.counter }}.value = 'Sede Principal SoulComfort - San Miguel';
+                }
+            });
+            
+            // Verificar estado inicial
+            if (virtualRadio{{ forloop.counter }}.checked) {
+                ubicacionContainer{{ forloop.counter }}.style.display = 'none';
+            }
+        }
+        {% endfor %}
+        
+        // También agregar funcionalidad para cuando se abre el modal
+        {% for coincidencia in pacientes_coincidentes %}
+        const modal{{ forloop.counter }} = document.getElementById('modalAgendar{{ forloop.counter }}');
+        if (modal{{ forloop.counter }}) {
+            modal{{ forloop.counter }}.addEventListener('show.bs.modal', function () {
+                // Resetear a virtual cuando se abre el modal
+                const virtualRadio = document.getElementById('virtual{{ forloop.counter }}');
+                const ubicacionContainer = document.getElementById('ubicacionContainer{{ forloop.counter }}');
+                const ubicacionInput = document.getElementById('ubicacion{{ forloop.counter }}');
+                
+                if (virtualRadio && ubicacionContainer && ubicacionInput) {
+                    virtualRadio.checked = true;
+                    ubicacionContainer.style.display = 'none';
+                    ubicacionInput.value = '';
+                }
+            });
+        }
+        {% endfor %}
+    });
+</script>
+{% endblock %}

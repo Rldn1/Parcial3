@@ -448,3 +448,115 @@ class DescargaRecursoKit(models.Model):
     
     def __str__(self):
         return f"{self.usuario.username} - {self.recurso.titulo}"
+    
+
+#Disponibilidad y Citas Psicológicas
+class DisponibilidadPasante(models.Model):
+    DIA_SEMANA = [
+        ('lunes', 'Lunes'),
+        ('martes', 'Martes'),
+        ('miercoles', 'Miércoles'),
+        ('jueves', 'Jueves'),
+        ('viernes', 'Viernes'),
+        ('sabado', 'Sábado'),
+    ]
+    
+    pasante = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'userprofile__tipo_usuario': 'pasante'})
+    dia_semana = models.CharField(max_length=10, choices=DIA_SEMANA)
+    hora_inicio = models.TimeField()
+    hora_fin = models.TimeField()
+    fecha_valida = models.DateField()  # Para qué semana es válida esta disponibilidad
+    activa = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ['pasante', 'dia_semana', 'hora_inicio', 'fecha_valida']
+    
+    def __str__(self):
+        return f"{self.pasante.username} - {self.get_dia_semana_display()} {self.hora_inicio}"
+
+class DisponibilidadPaciente(models.Model):
+    DIA_SEMANA = [
+        ('lunes', 'Lunes'),
+        ('martes', 'Martes'),
+        ('miercoles', 'Miércoles'),
+        ('jueves', 'Jueves'),
+        ('viernes', 'Viernes'),
+        ('sabado', 'Sábado'),
+    ]
+    
+    paciente = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'userprofile__tipo_usuario': 'paciente'})
+    dia_semana = models.CharField(max_length=10, choices=DIA_SEMANA)
+    hora_inicio = models.TimeField()
+    hora_fin = models.TimeField()
+    fecha_valida = models.DateField()
+    activa = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ['paciente', 'dia_semana', 'hora_inicio', 'fecha_valida']
+    
+    def __str__(self):
+        return f"{self.paciente.username} - {self.get_dia_semana_display()} {self.hora_inicio}"
+
+class CitaPsicologica(models.Model):
+    ESTADO_CITA = [
+        ('pendiente', 'Pendiente'),
+        ('confirmada', 'Confirmada'),
+        ('completada', 'Completada'),
+        ('cancelada', 'Cancelada'),
+    ]
+    
+    MODALIDAD_CITA = [
+        ('virtual', 'Virtual'),
+        ('presencial', 'Presencial'),
+    ]
+    
+    pasante = models.ForeignKey(User, on_delete=models.CASCADE, related_name='citas_como_pasante')
+    paciente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='citas_como_paciente')
+    fecha_cita = models.DateField()
+    hora_inicio = models.TimeField()
+    hora_fin = models.TimeField()
+    estado = models.CharField(max_length=15, choices=ESTADO_CITA, default='pendiente')
+    modalidad = models.CharField(max_length=10, choices=MODALIDAD_CITA, default='virtual')
+    enlace_llamada = models.URLField(
+        blank=True, 
+        null=True,
+        default="https://meet.google.com/new"
+    )
+    ubicacion_presencial = models.TextField(blank=True, help_text="Dirección para sesión presencial")
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    notas = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Cita {self.paciente.username} con {self.pasante.username} - {self.fecha_cita}"
+    
+    def generar_enlace_meet(self):
+        """Genera un enlace único de Google Meet para la cita virtual"""
+        if self.modalidad == 'virtual' and (not self.enlace_llamada or self.enlace_llamada == "https://meet.google.com/new"):
+            base_url = "https://meet.google.com"
+            codigo_unico = f"sc-{self.pasante.id:03d}-{self.paciente.id:03d}-{self.id:04d}"
+            self.enlace_llamada = f"{base_url}/{codigo_unico}"
+            self.save()
+        return self.enlace_llamada
+    
+    def puede_unirse(self):
+        """Verifica si es hora de unirse a la reunión virtual"""
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        if self.modalidad != 'virtual':
+            return False
+            
+        ahora = timezone.now()
+        fecha_hora_cita = timezone.make_aware(
+            datetime.combine(self.fecha_cita, self.hora_inicio)
+        )
+        
+        # Puede unirse 15 minutos antes hasta 1 hora después del inicio
+        return (fecha_hora_cita - timedelta(minutes=15)) <= ahora <= (fecha_hora_cita + timedelta(hours=1))
+    
+    def get_ubicacion_display(self):
+        """Retorna la ubicación según la modalidad"""
+        if self.modalidad == 'virtual':
+            return "Sesión Virtual - Google Meet"
+        else:
+            return self.ubicacion_presencial or "Sede Principal SoulComfort - San Miguel"

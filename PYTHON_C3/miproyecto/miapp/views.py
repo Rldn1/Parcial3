@@ -4,10 +4,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import RecursosKit, DescargaRecursoKit
+from datetime import datetime, timedelta
+from django.utils import timezone
+from django.contrib import messages
 from django.http import JsonResponse, FileResponse, Http404
 from .models import (
     UserProfile, Recurso, CategoriaRecurso, FormularioContacto, RespuestaConsulta, 
-    CategoriaForo, HiloForo, RespuestaForo
+    CategoriaForo, HiloForo, RespuestaForo, DisponibilidadPasante, DisponibilidadPaciente, CitaPsicologica
 )
 from .forms import RecursoForm, UserForm, UserProfileForm
 import re  # AÑADE ESTE IMPORT
@@ -1169,3 +1172,233 @@ def acerca_de(request):
     return render(request, 'miapp/acerca_de.html', {
         'seccion_actual': 'acerca_de'
     })
+
+
+
+
+
+
+
+# ==================== VISTAS PARA EL SISTEMA DE CITAS PSICOLÓGICAS ====================
+
+@login_required
+def gestionar_disponibilidad_pasante(request):
+    """Vista para que pasantes gestionen su disponibilidad"""
+    if not request.user.userprofile.es_pasante():
+        messages.error(request, "No tienes permisos para acceder a esta función.")
+        return redirect('miapp:index')
+    
+    # Calcular semana próxima (lunes de la próxima semana)
+    hoy = timezone.now().date()
+    proximo_lunes = hoy + timedelta(days=(7 - hoy.weekday()))
+    
+    if request.method == 'POST':
+        dia = request.POST.get('dia_semana')
+        hora_inicio = request.POST.get('hora_inicio')
+        hora_fin = request.POST.get('hora_fin')
+        accion = request.POST.get('accion')
+        
+        if accion == 'agregar':
+            try:
+                disponibilidad = DisponibilidadPasante(
+                    pasante=request.user,
+                    dia_semana=dia,
+                    hora_inicio=hora_inicio,
+                    hora_fin=hora_fin,
+                    fecha_valida=proximo_lunes
+                )
+                disponibilidad.save()
+                messages.success(request, "Horario disponible agregado correctamente.")
+            except Exception as e:
+                messages.error(request, f"Error al agregar horario: {str(e)}")
+                
+        elif accion == 'eliminar':
+            disponibilidad_id = request.POST.get('disponibilidad_id')
+            DisponibilidadPasante.objects.filter(id=disponibilidad_id, pasante=request.user).delete()
+            messages.success(request, "Horario eliminado correctamente.")
+    
+    disponibilidades = DisponibilidadPasante.objects.filter(
+        pasante=request.user, 
+        fecha_valida=proximo_lunes
+    ).order_by('dia_semana', 'hora_inicio')
+    
+    return render(request, 'miapp/pasante/gestionar_disponibilidad.html', {
+        'disponibilidades': disponibilidades,
+        'proxima_semana': proximo_lunes,
+        'seccion_actual': 'disponibilidad'
+    })
+
+@login_required
+def gestionar_disponibilidad_paciente(request):
+    """Vista para que pacientes gestionen su disponibilidad"""
+    if not request.user.userprofile.es_paciente():
+        messages.error(request, "No tienes permisos para acceder a esta función.")
+        return redirect('miapp:index')
+    
+    hoy = timezone.now().date()
+    proximo_lunes = hoy + timedelta(days=(7 - hoy.weekday()))
+    
+    if request.method == 'POST':
+        dia = request.POST.get('dia_semana')
+        hora_inicio = request.POST.get('hora_inicio')
+        hora_fin = request.POST.get('hora_fin')
+        accion = request.POST.get('accion')
+        
+        if accion == 'agregar':
+            try:
+                disponibilidad = DisponibilidadPaciente(
+                    paciente=request.user,
+                    dia_semana=dia,
+                    hora_inicio=hora_inicio,
+                    hora_fin=hora_fin,
+                    fecha_valida=proximo_lunes
+                )
+                disponibilidad.save()
+                messages.success(request, "Horario disponible agregado correctamente.")
+            except Exception as e:
+                messages.error(request, f"Error al agregar horario: {str(e)}")
+                
+        elif accion == 'eliminar':
+            disponibilidad_id = request.POST.get('disponibilidad_id')
+            DisponibilidadPaciente.objects.filter(id=disponibilidad_id, paciente=request.user).delete()
+            messages.success(request, "Horario eliminado correctamente.")
+    
+    disponibilidades = DisponibilidadPaciente.objects.filter(
+        paciente=request.user, 
+        fecha_valida=proximo_lunes
+    ).order_by('dia_semana', 'hora_inicio')
+    
+    return render(request, 'miapp/gestionar_disponibilidad_paciente.html', {
+        'disponibilidades': disponibilidades,
+        'proxima_semana': proximo_lunes,
+        'seccion_actual': 'disponibilidad'
+    })
+@login_required
+def agendar_cita(request):
+    """Vista para que pasantes agenden citas basadas en disponibilidades coincidentes"""
+    if not request.user.userprofile.es_pasante():
+        messages.error(request, "No tienes permisos para acceder a esta función.")
+        return redirect('miapp:index')
+    
+    hoy = timezone.now().date()
+    proximo_lunes = hoy + timedelta(days=(7 - hoy.weekday()))
+    
+    # Obtener disponibilidad del pasante actual
+    disponibilidad_pasante = DisponibilidadPasante.objects.filter(
+        pasante=request.user,
+        fecha_valida=proximo_lunes,
+        activa=True
+    )
+    
+    # Encontrar pacientes con disponibilidades que coincidan
+    pacientes_coincidentes = []
+    
+    for disp_pasante in disponibilidad_pasante:
+        # Buscar pacientes con disponibilidad en el mismo día y hora
+        pacientes_disponibles = User.objects.filter(
+            userprofile__tipo_usuario='paciente',
+            disponibilidadpaciente__dia_semana=disp_pasante.dia_semana,
+            disponibilidadpaciente__hora_inicio=disp_pasante.hora_inicio,
+            disponibilidadpaciente__fecha_valida=proximo_lunes,
+            disponibilidadpaciente__activa=True
+        ).distinct()
+        
+        for paciente in pacientes_disponibles:
+            # Verificar si ya existe una cita en este horario
+            cita_existente = CitaPsicologica.objects.filter(
+                pasante=request.user,
+                paciente=paciente,
+                fecha_cita=proximo_lunes + timedelta(days=['lunes','martes','miercoles','jueves','viernes','sabado'].index(disp_pasante.dia_semana)),
+                hora_inicio=disp_pasante.hora_inicio
+            ).exists()
+            
+            if not cita_existente:
+                pacientes_coincidentes.append({
+                    'paciente': paciente,
+                    'dia_semana': disp_pasante.dia_semana,
+                    'hora_inicio': disp_pasante.hora_inicio,
+                    'hora_fin': disp_pasante.hora_fin,
+                    'fecha_cita': proximo_lunes + timedelta(days=['lunes','martes','miercoles','jueves','viernes','sabado'].index(disp_pasante.dia_semana))
+                })
+    
+    if request.method == 'POST':
+        paciente_id = request.POST.get('paciente_id')
+        fecha_cita_str = request.POST.get('fecha_cita')
+        hora_inicio = request.POST.get('hora_inicio')
+        dia_semana = request.POST.get('dia_semana')
+        modalidad = request.POST.get('modalidad', 'virtual')  # ← NUEVO
+        ubicacion_presencial = request.POST.get('ubicacion_presencial', '')  # ← NUEVO
+        
+        try:
+            paciente = User.objects.get(id=paciente_id)
+            fecha_cita = datetime.strptime(fecha_cita_str, '%Y-%m-%d').date()
+            
+            # Crear la cita con modalidad
+            cita = CitaPsicologica(
+                pasante=request.user,
+                paciente=paciente,
+                fecha_cita=fecha_cita,
+                hora_inicio=hora_inicio,
+                hora_fin=(datetime.strptime(hora_inicio, '%H:%M:%S') + timedelta(hours=1)).time(),
+                estado='confirmada',
+                modalidad=modalidad,  # ← NUEVO
+                ubicacion_presencial=ubicacion_presencial if modalidad == 'presencial' else ''  # ← NUEVO
+                # No asignamos enlace_llamada aquí, se generará automáticamente si es virtual
+            )
+            cita.save()
+            
+            # Generar enlace de Meet solo si es virtual
+            if modalidad == 'virtual':
+                cita.generar_enlace_meet()  # ← NUEVO
+            
+            # Marcar las disponibilidades como ocupadas
+            DisponibilidadPasante.objects.filter(
+                pasante=request.user,
+                fecha_valida=proximo_lunes,
+                dia_semana=dia_semana,
+                hora_inicio=hora_inicio
+            ).update(activa=False)
+            
+            DisponibilidadPaciente.objects.filter(
+                paciente=paciente,
+                fecha_valida=proximo_lunes,
+                dia_semana=dia_semana,
+                hora_inicio=hora_inicio
+            ).update(activa=False)
+            
+            # Mensaje según modalidad
+            if modalidad == 'virtual':
+                messages.success(request, f"✅ Cita VIRTUAL agendada con {paciente.get_full_name() or paciente.username} para el {fecha_cita_str} a las {hora_inicio}.")
+            else:
+                messages.success(request, f"✅ Cita PRESENCIAL agendada con {paciente.get_full_name() or paciente.username} para el {fecha_cita_str} a las {hora_inicio}.")
+            
+        except Exception as e:
+            messages.error(request, f"❌ Error al agendar cita: {str(e)}")
+        
+        return redirect('miapp:agendar_cita')
+    
+    return render(request, 'miapp/pasante/agendar_cita.html', {
+        'pacientes_coincidentes': pacientes_coincidentes,
+        'proxima_semana': proximo_lunes,
+        'seccion_actual': 'agendar_cita'
+    })
+
+
+@login_required
+def ver_mis_citas(request):
+    """Vista para que usuarios vean sus citas"""
+    hoy = timezone.now().date()
+    
+    if request.user.userprofile.es_pasante():
+        citas = CitaPsicologica.objects.filter(pasante=request.user).order_by('fecha_cita', 'hora_inicio')
+    elif request.user.userprofile.es_paciente():
+        citas = CitaPsicologica.objects.filter(paciente=request.user).order_by('fecha_cita', 'hora_inicio')
+    else:
+        citas = CitaPsicologica.objects.none()
+    
+    return render(request, 'miapp/ver_mis_citas.html', {
+        'citas': citas,
+        'hoy': hoy,
+        'seccion_actual': 'mis_citas'
+    })
+

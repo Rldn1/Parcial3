@@ -655,6 +655,16 @@
                             <i class="fas fa-play-circle me-2"></i>Multimedia
                         </a>
                     </li>
+
+                    <!-- TERAPIA VIRTUAL - Solo para pacientes -->
+                    {% if user.is_authenticated and user.userprofile.tipo_usuario == 'paciente' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if seccion_actual == 'disponibilidad' %}active{% endif %}" 
+                        href="{% url 'miapp:gestionar_disponibilidad_paciente' %}">
+                            <i class="fas fa-video me-2"></i>Terapia Virtual
+                        </a>
+                    </li>
+                    {% endif %}
                     
                     <!-- CONTACTO -->
                     <li class="nav-item">
@@ -705,6 +715,13 @@
                             <li>
                                 <a class="dropdown-item" href="{% url 'miapp:mi_perfil' %}">
                                     <i class="fas fa-user me-2"></i>Ver Mi Perfil
+                                </a>
+                            </li>
+
+                            <!-- En el dropdown del perfil, después de "Ver Mi Perfil" -->
+                            <li>
+                                <a class="dropdown-item" href="{% url 'miapp:ver_mis_citas' %}">
+                                    <i class="fas fa-calendar-alt me-2"></i>Mis Citas
                                 </a>
                             </li>
                             
