@@ -69,7 +69,7 @@
                                     </div>
                                 
                                 {% elif recurso.enlace and not video_id %}
-                                    <!-- ENLACE EXTERNO - VERSIÓN CORREGIDA -->
+                                    <!-- ENLACE EXTERNO -->
                                     <div class="enlace-externo-container">
                                         <div class="card border-warning">
                                             <div class="card-header bg-warning text-dark">
@@ -83,7 +83,7 @@
                                                 </h5>
                                             </div>
                                             <div class="card-body">
-                                                <!-- VISTA PREVIA PARA PDF CON GOOGLE DOCS VIEWER -->
+                                                <!-- VISTA PREVIA PARA PDF -->
                                                 {% if '.pdf' in recurso.enlace.lower %}
                                                     <div class="vista-previa-pdf mb-4">
                                                         <h6 class="fw-bold mb-3">Vista previa del documento:</h6>
@@ -299,7 +299,7 @@
     </div>
 
                     {% else %}
-                        <!-- SECCIÓN PARA TEXTO/IMAGEN (por defecto) -->
+                        <!-- SECCIÓN PARA TEXTO/IMAGEN -->
                         <div class="row">
                             {% if recurso.imagen_portada %}
                                 <div class="col-12 col-md-6 mb-4">
@@ -474,7 +474,7 @@
 <!-- JavaScript para videos de YouTube (Videos y Ejercicios) -->
 {% if video_id and recurso.tipo_recurso in 'video,ejercicio' %}
 <script>
-// 1. Cargar API de YouTube
+
 var tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -484,7 +484,7 @@ var player;
 var videoId = '{{ video_id }}';
 var tipoRecurso = '{{ recurso.tipo_recurso }}';
 
-// 2. Función requerida por YouTube
+// Función requerida por YouTube
 function onYouTubeIframeAPIReady() {
     console.log('YouTube API lista, videoId:', videoId, 'Tipo:', tipoRecurso);
     
@@ -512,13 +512,13 @@ function onYouTubeIframeAPIReady() {
     }
 }
 
-// 3. Cuando el reproductor está listo
+// Cuando el reproductor está listo
 function onPlayerReady(event) {
     console.log('Reproductor listo para:', tipoRecurso);
     updatePlayerStatus('Reproductor listo');
 }
 
-// 4. Manejar cambios de estado
+// Manejar cambios de estado
 function onPlayerStateChange(event) {
     var states = {
         '-1': 'No iniciado',
@@ -532,7 +532,7 @@ function onPlayerStateChange(event) {
     updatePlayerStatus('Estado: ' + state);
 }
 
-// 5. Manejar errores
+// Manejar errores
 function onPlayerError(event) {
     var errors = {
         '2': 'ID inválido',
@@ -549,7 +549,7 @@ function onPlayerError(event) {
     showError('No se puede mostrar el video: ' + error);
 }
 
-// 6. Funciones auxiliares
+// Funciones auxiliares
 function updatePlayerStatus(message) {
     document.getElementById('player-status-' + tipoRecurso).textContent = message;
 }
