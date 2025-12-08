@@ -1,4 +1,4 @@
-<!-- miapp/templates/miapp/gestionar_herramientas.html -->
+
 {% extends 'miapp/base.html' %}
 
 {% block title %}Gestionar Herramientas - SoulComfort{% endblock %}
@@ -7,7 +7,7 @@
 <div class="container py-4">
     <div class="row">
         <div class="col-12">
-            <!-- Header -->
+            
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
                     <h1 class="h1 fw-bold text-primary mb-2">Gestionar Herramientas</h1>
@@ -18,7 +18,7 @@
                 </a>
             </div>
 
-            <!-- Mensajes -->
+            
             {% if messages %}
             <div class="mb-4">
                 {% for message in messages %}
@@ -30,7 +30,7 @@
             </div>
             {% endif %}
 
-            <!-- Tabla de recursos -->
+            
             <div class="card shadow-sm">
                 <div class="card-header bg-white">
                     <h5 class="card-title mb-0">Recursos Existentes</h5>
@@ -129,7 +129,7 @@
                 </div>
             </div>
 
-            <!-- Estadísticas -->
+            
             <div class="row mt-4">
                 <div class="col-md-3">
                     <div class="card bg-primary text-white">
@@ -256,7 +256,7 @@
         font-weight: 600;
     }
 
-    /* Botón Editar */
+    
     .btn-edit {
         background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         color: white;
@@ -274,7 +274,7 @@
         transform: scale(1.1) rotate(-5deg);
     }
 
-    /* Botón Eliminar - CORREGIDO */
+    /
     .btn-delete {
         background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
         color: white;
@@ -292,7 +292,7 @@
         transform: scale(1.1);
     }
 
-    /* Versión responsive */
+    
     @media (max-width: 768px) {
         .action-buttons {
             flex-direction: column;
@@ -319,7 +319,7 @@
 </style>
 
 <script>
-    // Inicializar tooltips de Bootstrap
+    
     document.addEventListener('DOMContentLoaded', function() {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
