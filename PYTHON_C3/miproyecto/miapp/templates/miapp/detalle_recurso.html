@@ -44,7 +44,7 @@
                     <!-- CONTENIDO SEGÚN EL TIPO DE RECURSO -->
                      
                     {% if recurso.tipo_recurso == 'video' or recurso.tipo_recurso == 'ejercicio' %}
-                        <!-- SECCIÓN PARA VIDEOS Y EJERCICIOS CON VIDEOS -->
+                        <!-- SECCIÓN PARA VIDEOS Y EJERCICIOS  -->
                         <div class="row">
                             <div class="col-12 col-lg-8 mb-4">
                                 {% if recurso.archivo %}
@@ -56,7 +56,7 @@
                                     </div>
                                 
                                 {% elif video_id %}
-                                    <!-- REPRODUCTOR DE YOUTUBE CON API -->
+                                    <!-- REPRODUCTOR DE YOUTUBE  -->
                                     <div class="youtube-player-container mb-4">
                                         <div id="player-{{ recurso.tipo_recurso }}"></div>
                                         
@@ -124,7 +124,7 @@
                                                     </a>
                                                 
                                                 {% else %}
-                                                    <!-- CONTENIDO PARA ENLACES NO PDF -->
+
                                                     <div class="vista-previa-contenido">
                                                         <h6 class="fw-bold">Vista previa del ejercicio:</h6>
                                                         <div class="bg-light p-3 rounded mb-3">
@@ -151,7 +151,7 @@
                                     </div>
                                 
                                 {% else %}
-                                    <!-- Si no hay video o enlace -->
+                                
                                     <div class="alert alert-secondary text-center p-4">
                                         <i class="fas fa-{% if recurso.tipo_recurso == 'video' %}video-slash{% else %}walking{% endif %} fa-3x text-muted mb-3"></i>
                                         <h5>No hay {% if recurso.tipo_recurso == 'video' %}video{% else %}ejercicio{% endif %} disponible</h5>
@@ -220,7 +220,7 @@
         
         <div class="col-12 col-lg-6 mb-4">
             {% if recurso.enlace and '.pdf' in recurso.enlace.lower %}
-                <!-- Vista previa del PDF -->
+                <!-- Vista previa -->
                 <div class="pdf-preview-articulo">
                     <h6 class="fw-bold mb-2">Vista previa del documento:</h6>
                     <div class="pdf-viewer-container-articulo">
@@ -251,7 +251,6 @@
                     </a>
                 </div>
             {% elif recurso.enlace %}
-                <!-- Si es enlace pero no PDF -->
                 <div class="text-center p-4 border rounded-3 bg-light">
                     <i class="fas fa-external-link-alt fa-3x text-muted mb-3"></i>
                     <h5>Enlace externo disponible</h5>
@@ -269,7 +268,7 @@
         </div>
     </div>
     
-    <!-- FILA INFERIOR: Descripción y Contenido -->
+    <!-- Descripción y Contenido -->
     <div class="row mt-4">
         <div class="col-12">
             <div class="card border-0 bg-light">
@@ -353,7 +352,7 @@
     </div>
 </div>
 
-<!-- Modal para imagen grande -->
+<!-- Modal  -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -481,7 +480,7 @@ var player;
 var videoId = '{{ video_id }}';
 var tipoRecurso = '{{ recurso.tipo_recurso }}';
 
-// Función requerida por YouTube
+
 function onYouTubeIframeAPIReady() {
     console.log('YouTube API lista, videoId:', videoId, 'Tipo:', tipoRecurso);
     
@@ -509,7 +508,7 @@ function onYouTubeIframeAPIReady() {
     }
 }
 
-// Cuando el reproductor está listo
+
 function onPlayerReady(event) {
     console.log('Reproductor listo para:', tipoRecurso);
     updatePlayerStatus('Reproductor listo');
@@ -546,7 +545,6 @@ function onPlayerError(event) {
     showError('No se puede mostrar el video: ' + error);
 }
 
-// Funciones auxiliares
 function updatePlayerStatus(message) {
     document.getElementById('player-status-' + tipoRecurso).textContent = message;
 }
