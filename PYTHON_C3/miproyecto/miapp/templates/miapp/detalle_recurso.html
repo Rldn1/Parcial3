@@ -6,7 +6,6 @@
 <div class="container py-5 mt-5">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-10">
-            <!-- Breadcrumb -->
             <nav aria-label="breadcrumb" class="mb-4">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{% url 'miapp:recursos_multimedia' %}">Recursos Multimedia</a></li>
@@ -43,13 +42,12 @@
 
                 <div class="card-body p-4">
                     <!-- CONTENIDO SEGÚN EL TIPO DE RECURSO -->
-                    
+                     
                     {% if recurso.tipo_recurso == 'video' or recurso.tipo_recurso == 'ejercicio' %}
                         <!-- SECCIÓN PARA VIDEOS Y EJERCICIOS CON VIDEOS -->
                         <div class="row">
                             <div class="col-12 col-lg-8 mb-4">
                                 {% if recurso.archivo %}
-                                    <!-- Video subido directamente -->
                                     <div class="video-container">
                                         <video controls class="w-100 rounded-3 shadow-sm" style="height: 300px; background: #000;">
                                             <source src="{{ recurso.archivo.url }}" type="video/mp4">
@@ -69,7 +67,7 @@
                                     </div>
                                 
                                 {% elif recurso.enlace and not video_id %}
-                                    <!-- ENLACE EXTERNO - VERSIÓN CORREGIDA -->
+                                    <!-- ENLACE EXTERNO -->
                                     <div class="enlace-externo-container">
                                         <div class="card border-warning">
                                             <div class="card-header bg-warning text-dark">
@@ -153,7 +151,7 @@
                                     </div>
                                 
                                 {% else %}
-                                    <!-- Sin video ni enlace -->
+                                    <!-- Si no hay video o enlace -->
                                     <div class="alert alert-secondary text-center p-4">
                                         <i class="fas fa-{% if recurso.tipo_recurso == 'video' %}video-slash{% else %}walking{% endif %} fa-3x text-muted mb-3"></i>
                                         <h5>No hay {% if recurso.tipo_recurso == 'video' %}video{% else %}ejercicio{% endif %} disponible</h5>
@@ -198,9 +196,8 @@
                         </div>
 
     {% elif recurso.tipo_recurso == 'articulo' %}
-    <!-- SECCIÓN PARA ARTÍCULOooS -->
-    <div class="row">
-        <!-- FILA SUPERIOR: Imagen y Vista Previa PDF -->
+    <!-- Articulos -->
+    <div class="row"> 
         <div class="col-12 col-lg-6 mb-4">
             {% if recurso.imagen_portada %}
                 <div class="text-center">
@@ -223,7 +220,7 @@
         
         <div class="col-12 col-lg-6 mb-4">
             {% if recurso.enlace and '.pdf' in recurso.enlace.lower %}
-                <!-- Vista previa PDF en la columna derecha -->
+                <!-- Vista previa del PDF -->
                 <div class="pdf-preview-articulo">
                     <h6 class="fw-bold mb-2">Vista previa del documento:</h6>
                     <div class="pdf-viewer-container-articulo">
@@ -299,7 +296,7 @@
     </div>
 
                     {% else %}
-                        <!-- SECCIÓN PARA TEXTO/IMAGEN (por defecto) -->
+                        <!-- SECCIÓN PARA TEXTO/IMAGEN -->
                         <div class="row">
                             {% if recurso.imagen_portada %}
                                 <div class="col-12 col-md-6 mb-4">
@@ -545,7 +542,7 @@ function onPlayerError(event) {
     var error = errors[event.data] || 'Error ' + event.data;
     updatePlayerStatus('Error: ' + error);
     
-    // Mostrar mensaje de error
+
     showError('No se puede mostrar el video: ' + error);
 }
 
