@@ -7,7 +7,7 @@
 <div class="container py-4">
     <div class="row">
         <div class="col-12">
-            <!-- Header Mejorado -->
+            
             <div class="text-center mb-4">
                 <h1 class="h fw-bold text-primary mb-2">
                     Recursos de Bienestar
@@ -18,7 +18,7 @@
                 </div>
             </div>
 
-            <!-- Mensaje para pasantes en modo usuario -->
+           
             {% if user.userprofile.tipo_usuario == 'pasante' and request.session.viewing_as_user %}
             <div class="alert alert-info mb-5">
                 <i class="fas fa-eye me-2"></i>
@@ -29,14 +29,14 @@
             </div>
             {% endif %}
 
-            <!-- Sección de Kit de Herramientas -->
+            
             <div class="row mb-5">
                 <div class="col-12">
                     
                     
                     <div class="row">
                         {% for recurso in recursos_kit %}
-                        <!-- Tarjeta Dinámica -->
+                        
                         <div class="col-lg-4 col-md-6 mb-4">
                             <div class="card resource-card h-100">
                                 <div class="card-header bg-gradient-{{ recurso.color }} text-white text-center py-4">
@@ -79,7 +79,7 @@
             </div>
 
                
-            <!-- CTA Section -->
+            
             <div class="text-center mt-5">
                 <div class="cta-section text-white py-5 px-3 rounded-3">
                     <div class="row justify-content-center">
@@ -101,7 +101,7 @@
 </div>
 
 <style>
-    /* Tus estilos CSS existentes se mantienen igual */
+    
     .feature-card {
         border: none;
         border-radius: 15px;
@@ -170,7 +170,7 @@
 </style>
 
 <script>
-    // Script para manejar las descargas con feedback visual
+    
     document.addEventListener('DOMContentLoaded', function() {
         const downloadButtons = document.querySelectorAll('.btn-download');
         
@@ -179,13 +179,13 @@
                 const button = this;
                 const originalHTML = button.innerHTML;
                 
-                // Mostrar estado de carga
+                
                 button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Descargando...';
                 button.disabled = true;
                 
-                // El enlace se abrirá después de la animación
+                
                 setTimeout(() => {
-                    // Restaurar botón después de 3 segundos (simulando descarga)
+                    
                     setTimeout(() => {
                         button.innerHTML = '<i class="fas fa-check me-2"></i>Descargado';
                         setTimeout(() => {

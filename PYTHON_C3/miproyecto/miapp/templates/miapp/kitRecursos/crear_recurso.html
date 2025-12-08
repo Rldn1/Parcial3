@@ -3,11 +3,11 @@
 {% block title %}Crear Recurso - SoulComfort{% endblock %}
 
 {% block content %}
-<div class="container py-3">  <!-- Reducido py-4 a py-3 -->
+<div class="container py-3">  
     <div class="row justify-content-center">
-        <div class="col-lg-10 col-xl-8">  <!-- Ancho más amplio -->
-            <!-- Header Compacto -->
-            <div class="page-header mb-4">  <!-- Agregado mb-4 -->
+        <div class="col-lg-10 col-xl-8">  
+           
+            <div class="page-header mb-4">  
                 <div class="d-flex align-items-center mb-3">
                     <a href="{% url 'miapp:admin_gestionar_herramientas' %}" class="btn btn-outline-secondary btn-sm me-3">
                         <i class="fas fa-arrow-left"></i>
@@ -21,7 +21,7 @@
                 </div>
             </div>
 
-            <!-- Formulario Mejorado -->
+          
             <div class="card shadow-lg border-0">
                 <div class="card-header bg-gradient-primary text-white py-3">
                     <h5 class="card-title mb-0 fw-bold">
@@ -32,7 +32,7 @@
                     <form method="post" enctype="multipart/form-data" id="recursoForm">
                         {% csrf_token %}
                         
-                        <!-- Información Básica -->
+                      
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="mb-4">
@@ -64,7 +64,7 @@
                             <div class="form-text">Explica cómo este recurso ayudará a los usuarios</div>
                         </div>
 
-                        <!-- Categoría y Tipo -->
+                        
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-4">
@@ -104,7 +104,7 @@
                             </div>
                         </div>
 
-                        <!-- Personalización Visual -->
+                      
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-4">
@@ -138,7 +138,7 @@
                             </div>
                         </div>
 
-                        <!-- Archivo -->
+                       
                         <div class="mb-4">
                             <label for="archivo" class="form-label fw-semibold">
                                 <i class="fas fa-upload me-2 text-primary"></i>Archivo del Recurso
@@ -150,7 +150,7 @@
                             </div>
                         </div>
 
-                        <!-- Estado -->
+                       
                         <div class="mb-4">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="activo" name="activo" checked>
@@ -161,7 +161,7 @@
                             </div>
                         </div>
 
-                        <!-- Acciones -->
+                     
                         <div class="d-flex justify-content-between align-items-center pt-3 border-top">
                             <a href="{% url 'miapp:admin_gestionar_herramientas' %}" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-2"></i>Cancelar
@@ -254,7 +254,7 @@
         margin-top: 0.25rem;
     }
     
-    /* Preview de icono dinámico */
+    
     .icon-preview-card {
         transition: all 0.3s ease;
     }
@@ -272,7 +272,7 @@
         const iconInput = document.getElementById('icono');
         const iconText = document.getElementById('iconText');
         
-        // Mapeo de tipos de archivo a iconos
+        
         const iconMap = {
             'pdf': 'fas fa-file-pdf',
             'doc': 'fas fa-file-word',
@@ -283,7 +283,7 @@
             'audio': 'fas fa-file-audio'
         };
         
-        // Mapeo de tipos de archivo a colores
+       
         const colorMap = {
             'pdf': 'text-danger',
             'doc': 'text-primary',
@@ -294,7 +294,7 @@
             'audio': 'text-secondary'
         };
         
-        // Mapeo de tipos de archivo a textos descriptivos
+        
         const textMap = {
             'pdf': 'Icono para documento PDF',
             'doc': 'Icono para documento Word',
@@ -305,7 +305,6 @@
             'audio': 'Icono para audio'
         };
         
-        // Actualizar icono automáticamente cuando cambia el tipo de archivo
         tipoArchivoSelect.addEventListener('change', function() {
             const selectedType = this.value;
             
@@ -314,18 +313,14 @@
                 const newColor = colorMap[selectedType] || 'text-primary';
                 const newText = textMap[selectedType] || 'Icono seleccionado automáticamente';
                 
-                // Actualizar icono visual
                 iconPreview.className = `${newIcon} fa-2x ${newColor} mb-2`;
                 
-                // Actualizar campo oculto
                 iconInput.value = newIcon;
                 
-                // Actualizar texto descriptivo
                 iconText.textContent = newText;
             }
         });
         
-        // Validación del formulario
         const form = document.getElementById('recursoForm');
         form.addEventListener('submit', function(e) {
             const archivo = document.getElementById('archivo');
@@ -343,20 +338,20 @@
                 return;
             }
             
-            // Mostrar loading en el botón
+           
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creando...';
             submitBtn.disabled = true;
             
-            // Restaurar después de 5 segundos (por si hay error)
+            
             setTimeout(() => {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             }, 5000);
         });
         
-        // Preview del nombre del archivo
+        
         const archivoInput = document.getElementById('archivo');
         archivoInput.addEventListener('change', function() {
             if (this.files.length > 0) {

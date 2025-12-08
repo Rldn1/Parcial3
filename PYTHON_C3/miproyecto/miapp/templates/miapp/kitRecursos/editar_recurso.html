@@ -6,7 +6,6 @@
 <div class="container py-3">
     <div class="row justify-content-center">
         <div class="col-lg-10 col-xl-8">
-            <!-- Header Compacto -->
             <div class="page-header mb-4">
                 <div class="d-flex align-items-center mb-3">
                     <a href="{% url 'miapp:admin_gestionar_herramientas' %}" class="btn btn-outline-secondary btn-sm me-3">
@@ -19,7 +18,7 @@
                         <p class="text-muted mb-0">Actualiza la información del recurso "{{ recurso.titulo }}"</p>
                     </div>
                 </div>
-                <!-- Información actual del recurso -->
+                
                 <div class="current-resource-info bg-light rounded p-3">
                     <div class="row">
                        
@@ -31,7 +30,7 @@
                 </div>
             </div>
 
-            <!-- Formulario Mejorado -->
+            
             <div class="card shadow-lg border-0">
                 <div class="card-header bg-gradient-warning text-white py-3">
                     <h5 class="card-title mb-0 fw-bold">
@@ -42,7 +41,7 @@
                     <form method="post" enctype="multipart/form-data" id="editarRecursoForm">
                         {% csrf_token %}
                         
-                        <!-- Información Básica -->
+                        
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="mb-4">
@@ -75,7 +74,7 @@
                             <div class="form-text">Explica cómo este recurso ayudará a los usuarios</div>
                         </div>
 
-                        <!-- Categoría y Tipo -->
+                        
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-4">
@@ -108,7 +107,7 @@
                             </div>
                         </div>
 
-                        <!-- Personalización Visual -->
+                        
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-4">
@@ -144,7 +143,7 @@
                             </div>
                         </div>
 
-                        <!-- Archivo -->
+                        
                         <div class="mb-4">
                             <label for="archivo" class="form-label fw-semibold">
                                 <i class="fas fa-sync-alt me-2 text-warning"></i>Actualizar Archivo
@@ -162,7 +161,7 @@
                             </div>
                         </div>
 
-                        <!-- Estado -->
+                        
                         <div class="mb-4">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="activo" name="activo" {% if recurso.activo %}checked{% endif %}>
@@ -173,7 +172,7 @@
                             </div>
                         </div>
 
-                        <!-- Acciones -->
+                        
                         <div class="d-flex justify-content-between align-items-center pt-3 border-top">
                             <a href="{% url 'miapp:admin_gestionar_herramientas' %}" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-2"></i>Cancelar
@@ -302,7 +301,7 @@
         const iconText = document.getElementById('iconText');
         const colorSelect = document.getElementById('color');
         
-        // Mapeo de tipos de archivo a iconos
+        
         const iconMap = {
             'pdf': 'fas fa-file-pdf',
             'doc': 'fas fa-file-word',
@@ -313,7 +312,7 @@
             'audio': 'fas fa-file-audio'
         };
         
-        // Mapeo de tipos de archivo a textos descriptivos
+        
         const textMap = {
             'pdf': 'Icono para documento PDF',
             'doc': 'Icono para documento Word',
@@ -324,7 +323,7 @@
             'audio': 'Icono para audio'
         };
         
-        // Actualizar icono automáticamente cuando cambia el tipo de archivo
+        
         tipoArchivoSelect.addEventListener('change', function() {
             const selectedType = this.value;
             
@@ -333,18 +332,18 @@
                 const currentColor = colorSelect.value;
                 const newText = textMap[selectedType] || 'Icono actualizado automáticamente';
                 
-                // Actualizar icono visual
+                
                 iconPreview.className = `${newIcon} fa-2x text-${currentColor} mb-2`;
                 
-                // Actualizar campo oculto
+                
                 iconInput.value = newIcon;
                 
-                // Actualizar texto descriptivo
+                
                 iconText.textContent = newText;
             }
         });
         
-        // Actualizar color del icono cuando cambia el color
+        
         colorSelect.addEventListener('change', function() {
             const currentIcon = iconInput.value;
             const newColor = this.value;
@@ -354,7 +353,7 @@
             }
         });
         
-        // Validación del formulario
+        
         const form = document.getElementById('editarRecursoForm');
         form.addEventListener('submit', function(e) {
             const titulo = document.getElementById('titulo').value.trim();
@@ -365,20 +364,20 @@
                 return;
             }
             
-            // Mostrar loading en el botón
+            
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Actualizando...';
             submitBtn.disabled = true;
             
-            // Restaurar después de 5 segundos (por si hay error)
+            
             setTimeout(() => {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             }, 5000);
         });
         
-        // Preview del nuevo archivo
+        
         const archivoInput = document.getElementById('archivo');
         archivoInput.addEventListener('change', function() {
             if (this.files.length > 0) {
@@ -386,7 +385,7 @@
                 const fileSize = (this.files[0].size / (1024 * 1024)).toFixed(2);
                 console.log(`Nuevo archivo seleccionado: ${fileName} (${fileSize} MB)`);
                 
-                // Mostrar mensaje de confirmación
+                
                 const fileInfo = document.querySelector('.current-file-info');
                 if (fileInfo) {
                     fileInfo.innerHTML += `
